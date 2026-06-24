@@ -1,0 +1,386 @@
+import React, { useState, useEffect } from 'react';
+import { 
+  Settings, 
+  Sparkles, 
+  Map, 
+  ShieldAlert, 
+  Presentation, 
+  BarChart3, 
+  Key, 
+  HelpCircle,
+  RefreshCw,
+  X,
+  Plus
+} from 'lucide-react';
+import './App.css';
+
+// Subcomponents
+import DocumentLibrary from './components/DocumentLibrary';
+import LandscapeMap from './components/LandscapeMap';
+import RiskEvaluator from './components/RiskEvaluator';
+import PitchGenerator from './components/PitchGenerator';
+import SwotCanvas from './components/SwotCanvas';
+import AgentChat from './components/AgentChat';
+
+// Mock Utilities
+import { 
+  mockIdea, 
+  mockDocuments, 
+  mockLandscapeData, 
+  mockRiskAssessment, 
+  mockSwot, 
+  mockSlides 
+} from './utils/mockData';
+
+// API Utilities
+import {
+  generateLandscape,
+  generateRiskAssessment,
+  generateSwotAndFeasibility,
+  generatePitchAndPrd
+} from './utils/gemini';
+
+const defaultPrd = `# Product Requirement Document (PRD) - Project AeroShield
+
+## 1. Executive Summary
+Project AeroShield is an autonomous navigation and collision avoidance payload designed for micro-UAVs operating in GPS-denied, light-restricted, and high-dust environments (such as mine shafts, caves, and collapsed buildings). 
+
+## 2. Product Objectives
+- Deliver highly reliable collision avoidance under $150 Bill of Materials (BOM).
+- Operate in zero-light conditions without active GPS signals.
+- Dodge existing competitor patents (specifically US-1049283-B2 and SkyAvoid Inc.).
+
+## 3. Core Technical Specifications
+- Sensor Suite: 1x PMW3901 Optical Flow sensor, 2x VL53L1X Time-of-Flight micro-LiDAR rangefinders.
+- Core Processor: STMicroelectronics STM32F4 (ARM Cortex-M4) running at 168MHz.
+- Frequency: Obstacle query frequency >= 50Hz.
+- Avoidance Radius: 3.5 meters dynamic buffer zone.
+- Weight constraint: Payload total weight < 40g including chassis.
+
+## 4. Competitive Workarounds & Compliance
+- Bypass US-1049283-B2: Replaces patented radial ultrasonic transceiver arrays with a dual micro-LiDAR configuration fused with active infrared visual odometry.
+- Bypass SkyAvoid SA-Pulse: Avoids patented FPGA-based spatial clustering hardware by implementing lightweight software-only clustering algorithms on general-purpose microcontrollers.
+`;
+
+function App() {
+  // Global States
+  const [apiKey, setApiKey] = useState(localStorage.getItem('claimscout_gemini_key') || '');
+  const [showSettings, setShowSettings] = useState(!localStorage.getItem('claimscout_gemini_key'));
+  const [tempKey, setTempKey] = useState(apiKey);
+  
+  const [documents, setDocuments] = useState(mockDocuments);
+  const [currentIdea, setCurrentIdea] = useState(mockIdea);
+  const [activeTab, setActiveTab] = useState('landscape');
+  const [chatPersona, setChatPersona] = useState('copilot');
+
+  // Generated Analyses States
+  const [landscapeData, setLandscapeData] = useState(mockLandscapeData);
+  const [riskData, setRiskData] = useState(mockRiskAssessment);
+  const [swotData, setSwotData] = useState(mockSwot);
+  const [slides, setSlides] = useState(mockSlides);
+  const [prd, setPrd] = useState(defaultPrd);
+
+  // Loading States
+  const [isRegenerating, setIsRegenerating] = useState(false);
+  const [isDataSynced, setIsDataSynced] = useState(true);
+
+  // Chat message logs
+  const [messages, setMessages] = useState([
+    { 
+      id: 'intro', 
+      sender: 'agent', 
+      text: "Hello! I am ClaimScout Co-Pilot. I've analyzed your reference library for Project AeroShield. We have 2 competitor profiles and 2 patents loaded. How can I help you design your system or bypass competitor claims?" 
+    }
+  ]);
+
+  // If documents or ideas change, notify user that reports are out of sync and need regeneration
+  useEffect(() => {
+    // Skip first load
+    if (documents === mockDocuments && currentIdea === mockIdea) return;
+    setIsDataSynced(false);
+  }, [documents, currentIdea]);
+
+  const handleSaveSettings = (e) => {
+    e.preventDefault();
+    localStorage.setItem('claimscout_gemini_key', tempKey);
+    setApiKey(tempKey);
+    setShowSettings(false);
+  };
+
+  const handleClearKey = () => {
+    localStorage.removeItem('claimscout_gemini_key');
+    setApiKey('');
+    setTempKey('');
+  };
+
+  // Perform full agentic refresh across all modules in parallel
+  const handleRegenerateAll = async () => {
+    if (!apiKey) {
+      alert("Please enter a Gemini API Key in Settings to run live agentic synthesis!");
+      setShowSettings(true);
+      return;
+    }
+
+    setIsRegenerating(true);
+    try {
+      // Fetch all reports in parallel
+      const [newLandscape, newRisks, newSwot, newPitch] = await Promise.all([
+        generateLandscape(apiKey, documents, currentIdea),
+        generateRiskAssessment(apiKey, documents, currentIdea),
+        generateSwotAndFeasibility(apiKey, documents, currentIdea),
+        generatePitchAndPrd(apiKey, documents, currentIdea)
+      ]);
+
+      setLandscapeData(newLandscape);
+      setRiskData(newRisks);
+      setSwotData(newSwot);
+      setSlides(newPitch.slides);
+      setPrd(newPitch.prd);
+      setIsDataSynced(true);
+      
+      // Notify chat
+      setMessages(prev => [
+        ...prev, 
+        {
+          id: 'sync_' + Date.now(),
+          sender: 'agent',
+          text: `[SYSTEM: WORKSPACE REFRESHED] I have re-analyzed your workspace using the new specifications. The Tech Landscape, Patent Claims analysis, Slides, SWOT, and PRD have been updated successfully. Toggle the VC Critic to review risks.`
+        }
+      ]);
+    } catch (error) {
+      console.error(error);
+      alert(`Synthesis Failed: ${error.message}. Ensure your API key is correct.`);
+    } finally {
+      setIsRegenerating(false);
+    }
+  };
+
+  // Change chat logs when persona changes
+  useEffect(() => {
+    if (chatPersona === 'griller') {
+      setMessages(prev => [
+        ...prev,
+        {
+          id: 'grill_intro_' + Date.now(),
+          sender: 'agent',
+          text: `[SYSTEM: VC CRITIC ENGAGED] I am ready. I've audited the IP landscape. Let's talk about why your project might fail. Ask me about patent overlaps or competitor advantages, or select a suggestion below.`
+        }
+      ]);
+    } else {
+      setMessages(prev => [
+        ...prev,
+        {
+          id: 'copilot_intro_' + Date.now(),
+          sender: 'agent',
+          text: `[SYSTEM: CO-PILOT ENGAGED] Back to brainstorming mode. Ask me how to bypass specific patent claims, design software clusters, or draft presentation notes.`
+        }
+      ]);
+    }
+  }, [chatPersona]);
+
+  return (
+    <div id="root">
+      {/* Header Panel */}
+      <header className="app-header">
+        <div className="logo-section">
+          <span className="logo-icon">🔭</span>
+          <div className="logo-text">
+            <h1>ClaimScout AI</h1>
+            <span>Patent & Tech Landscape Analyst</span>
+          </div>
+        </div>
+
+        {/* Sync / Reload status bar */}
+        {!isDataSynced && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(245, 158, 11, 0.08)', border: '1px solid rgba(245, 158, 11, 0.2)', padding: '6px 12px', borderRadius: '8px', fontSize: '12px' }}>
+            <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--accent-amber)', display: 'inline-block' }} />
+            <span className="text-amber" style={{ fontWeight: '500' }}>Workspace changes detected.</span>
+            {apiKey && (
+              <button onClick={handleRegenerateAll} className="btn btn-primary" style={{ padding: '2px 8px', fontSize: '10.5px', height: 'auto', background: 'var(--accent-amber)', boxShadow: 'none' }}>
+                Regenerate
+              </button>
+            )}
+          </div>
+        )}
+
+        <div className="header-controls">
+          {apiKey ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(16, 185, 129, 0.08)', border: '1px solid rgba(16, 185, 129, 0.2)', padding: '6px 12px', borderRadius: '8px', fontSize: '12px' }}>
+              <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--accent-emerald)', display: 'inline-block' }} />
+              <span className="text-emerald" style={{ fontWeight: '500' }}>Gemini Active</span>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(244, 63, 94, 0.08)', border: '1px solid rgba(244, 63, 94, 0.2)', padding: '6px 12px', borderRadius: '8px', fontSize: '12px' }}>
+              <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--accent-rose)', display: 'inline-block' }} />
+              <span className="text-rose" style={{ fontWeight: '500' }}>Demo Mode (No API Key)</span>
+            </div>
+          )}
+
+          <button className="btn btn-icon" onClick={() => setShowSettings(true)} title="Settings">
+            <Settings size={18} />
+          </button>
+        </div>
+      </header>
+
+      {/* Main Grid View */}
+      <main className="app-main">
+        {/* Left pane: Reference Library */}
+        <DocumentLibrary 
+          documents={documents}
+          setDocuments={setDocuments}
+          currentIdea={currentIdea}
+          setCurrentIdea={setCurrentIdea}
+          apiKey={apiKey}
+          onGenerateAll={handleRegenerateAll}
+        />
+
+        {/* Center pane: Canvas with tabs */}
+        <div className="panel panel-center">
+          <div className="canvas-tabs-header">
+            <div className="tabs-list">
+              <button 
+                className={`tab-btn ${activeTab === 'landscape' ? 'active' : ''}`}
+                onClick={() => setActiveTab('landscape')}
+              >
+                <Map size={14} />
+                Landscape Map
+              </button>
+              <button 
+                className={`tab-btn ${activeTab === 'risk' ? 'active' : ''}`}
+                onClick={() => setActiveTab('risk')}
+              >
+                <ShieldAlert size={14} />
+                Risk Evaluator
+              </button>
+              <button 
+                className={`tab-btn ${activeTab === 'pitch' ? 'active' : ''}`}
+                onClick={() => setActiveTab('pitch')}
+              >
+                <Presentation size={14} />
+                Pitch & PRD
+              </button>
+              <button 
+                className={`tab-btn ${activeTab === 'swot' ? 'active' : ''}`}
+                onClick={() => setActiveTab('swot')}
+              >
+                <BarChart3 size={14} />
+                SWOT Canvas
+              </button>
+            </div>
+            
+            {apiKey && (
+              <button 
+                className="btn" 
+                style={{ height: '32px', padding: '0 12px', fontSize: '12px' }}
+                onClick={handleRegenerateAll}
+                disabled={isRegenerating}
+              >
+                {isRegenerating ? <RefreshCw size={12} className="loader" /> : <RefreshCw size={12} />}
+                Sync Workspace
+              </button>
+            )}
+          </div>
+
+          <div className="panel-content" style={{ position: 'relative' }}>
+            {/* Regenerate Loading Overlay */}
+            {isRegenerating && (
+              <div className="modal-overlay" style={{ position: 'absolute', background: 'rgba(7, 10, 19, 0.7)' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
+                  <Loader size={32} className="loader" style={{ width: '40px', height: '40px' }} />
+                  <p style={{ fontWeight: '600', fontSize: '14px' }}>Re-routing Tech Landscape...</p>
+                  <p style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Gemini is crawling claims and mapping opportunity nodes.</p>
+                </div>
+              </div>
+            )}
+
+            {/* Tab Routing */}
+            {activeTab === 'landscape' && <LandscapeMap landscapeData={landscapeData} />}
+            {activeTab === 'risk' && <RiskEvaluator riskData={riskData} />}
+            {activeTab === 'pitch' && (
+              <PitchGenerator 
+                slides={slides} 
+                setSlides={setSlides}
+                prd={prd}
+                setPrd={setPrd}
+                documents={documents}
+                currentIdea={currentIdea}
+                apiKey={apiKey}
+              />
+            )}
+            {activeTab === 'swot' && <SwotCanvas swotData={swotData} />}
+          </div>
+        </div>
+
+        {/* Right pane: Chat Intelligence */}
+        <AgentChat 
+          messages={messages}
+          setMessages={setMessages}
+          documents={documents}
+          currentIdea={currentIdea}
+          apiKey={apiKey}
+          chatPersona={chatPersona}
+          setChatPersona={setChatPersona}
+        />
+      </main>
+
+      {/* Settings Modal (API Key) */}
+      {showSettings && (
+        <div className="modal-overlay" onClick={() => setShowSettings(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <Key size={18} className="text-cyan" />
+                <h2>API Settings</h2>
+              </div>
+              <button className="modal-close" onClick={() => setShowSettings(false)}>
+                <X size={18} />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveSettings}>
+              <p style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: 1.5, marginBottom: '16px' }}>
+                To enable live AI generations for the tech landscape map, patent risk scoring, SWOT matrix, and chat agents, provide a Google Gemini API Key.
+              </p>
+              
+              <div className="input-group">
+                <label>Gemini API Key</label>
+                <input 
+                  type="password" 
+                  className="input-text"
+                  value={tempKey}
+                  onChange={(e) => setTempKey(e.target.value)}
+                  placeholder="Enter AIzaSy..."
+                />
+              </div>
+
+              <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '20px', lineHeight: 1.4 }}>
+                Don't have a key? You can get a free one from{' '}
+                <a 
+                  href="https://aistudio.google.com/" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  style={{ color: 'var(--accent-cyan)', textDecoration: 'none' }}
+                >
+                  Google AI Studio
+                </a>.
+              </div>
+
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <button type="submit" className="btn btn-primary" style={{ flex: 1, justifyContent: 'center' }}>
+                  Save API Key
+                </button>
+                {apiKey && (
+                  <button type="button" className="btn" style={{ borderColor: 'var(--accent-rose)', color: 'var(--accent-rose)' }} onClick={handleClearKey}>
+                    Clear Key
+                  </button>
+                )}
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default App;
