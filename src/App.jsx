@@ -281,7 +281,7 @@ function App() {
             )}
           </div>
 
-          <div className="panel-content" style={{ position: 'relative' }}>
+          <div className="panel-content" style={{ position: 'relative', padding: 0, display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
             {/* Regenerate Loading Overlay */}
             {isRegenerating && (
               <div className="modal-overlay" style={{ position: 'absolute', background: 'rgba(7, 10, 19, 0.7)' }}>
@@ -295,19 +295,29 @@ function App() {
 
             {/* Tab Routing */}
             {activeTab === 'landscape' && <LandscapeMap landscapeData={landscapeData} />}
-            {activeTab === 'risk' && <RiskEvaluator riskData={riskData} />}
-            {activeTab === 'pitch' && (
-              <PitchGenerator 
-                slides={slides} 
-                setSlides={setSlides}
-                prd={prd}
-                setPrd={setPrd}
-                documents={documents}
-                currentIdea={currentIdea}
-                apiKey={apiKey}
-              />
+            {activeTab === 'risk' && (
+              <div style={{ padding: '24px', overflowY: 'auto', flex: 1, width: '100%' }}>
+                <RiskEvaluator riskData={riskData} />
+              </div>
             )}
-            {activeTab === 'swot' && <SwotCanvas swotData={swotData} />}
+            {activeTab === 'pitch' && (
+              <div style={{ padding: '24px', overflowY: 'auto', flex: 1, width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
+                <PitchGenerator 
+                  slides={slides} 
+                  setSlides={setSlides}
+                  prd={prd}
+                  setPrd={setPrd}
+                  documents={documents}
+                  currentIdea={currentIdea}
+                  apiKey={apiKey}
+                />
+              </div>
+            )}
+            {activeTab === 'swot' && (
+              <div style={{ padding: '24px', overflowY: 'auto', flex: 1, width: '100%' }}>
+                <SwotCanvas swotData={swotData} />
+              </div>
+            )}
           </div>
         </div>
 

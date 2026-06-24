@@ -40,7 +40,7 @@ export default function LandscapeMap({ landscapeData }) {
     <div className="landscape-container">
       {/* SVG Interactive Canvas */}
       <div className="map-viewport">
-        <svg viewBox="0 0 500 400" className="map-svg">
+        <svg viewBox="0 0 800 400" className="map-svg">
           <defs>
             <radialGradient id="coreGradient" cx="50%" cy="50%" r="50%">
               <stop offset="0%" stopColor="#3b82f6" stopOpacity="1" />

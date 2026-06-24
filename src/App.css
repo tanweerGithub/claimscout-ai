@@ -429,17 +429,17 @@ input, textarea, button {
 
 /* Landscape Map View */
 .landscape-container {
-  display: grid;
-  grid-template-rows: 1fr auto;
+  display: flex;
+  flex-direction: column;
   height: 100%;
+  flex: 1;
   overflow: hidden;
 }
 
 .map-viewport {
   position: relative;
   width: 100%;
-  height: 100%;
-  min-height: 520px;
+  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -451,7 +451,7 @@ input, textarea, button {
   width: 100%;
   height: 100%;
   max-width: 100%;
-  max-height: 520px;
+  max-height: 100%;
 }
 
 /* SVG interactive nodes */
@@ -722,7 +722,7 @@ input, textarea, button {
   border-radius: 16px;
   aspect-ratio: 16/9;
   width: 100%;
-  max-width: 840px;
+  max-width: 100%;
   margin: 0 auto;
   padding: 36px;
   position: relative;
@@ -845,7 +845,7 @@ input, textarea, button {
   border-radius: 12px;
   padding: 20px;
   width: 100%;
-  max-width: 720px;
+  max-width: 100%;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
