@@ -32,6 +32,15 @@ import {
   mockSlides 
 } from './utils/mockData';
 
+// Local Workspace Simulator
+import { 
+  simulateLandscape, 
+  simulateRisks, 
+  simulateSwot, 
+  simulateSlides, 
+  simulatePrd 
+} from './utils/simulator';
+
 // API Utilities
 import {
   generateLandscape,
@@ -115,13 +124,42 @@ function App() {
 
   // Perform full agentic refresh across all modules in parallel
   const handleRegenerateAll = async () => {
+    setIsRegenerating(true);
+
     if (!apiKey) {
-      alert("Please enter a Gemini API Key in Settings to run live agentic synthesis!");
-      setShowSettings(true);
+      // Run local simulated engine with a short delay for realistic AI feel
+      setTimeout(() => {
+        try {
+          const newLandscape = simulateLandscape(documents, currentIdea);
+          const newRisks = simulateRisks(documents, currentIdea);
+          const newSwot = simulateSwot(documents, currentIdea);
+          const newSlides = simulateSlides(documents, currentIdea);
+          const newPrd = simulatePrd(documents, currentIdea);
+
+          setLandscapeData(newLandscape);
+          setRiskData(newRisks);
+          setSwotData(newSwot);
+          setSlides(newSlides);
+          setPrd(newPrd);
+          setIsDataSynced(true);
+          
+          setMessages(prev => [
+            ...prev, 
+            {
+              id: 'sync_sim_' + Date.now(),
+              sender: 'agent',
+              text: `[SYSTEM: WORKSPACE REFRESHED (DEMO MODE)] I have re-analyzed your workspace using the local simulation engine. The Tech Landscape graph, SWOT, Risks, Slides, and PRD are successfully updated. Enter a Gemini API Key in Settings for live LLM analysis.`
+            }
+          ]);
+        } catch (e) {
+          console.error(e);
+          alert("Simulation failed.");
+        } finally {
+          setIsRegenerating(false);
+        }
+      }, 1200);
       return;
     }
-
-    setIsRegenerating(true);
     try {
       // Fetch all reports in parallel
       const [newLandscape, newRisks, newSwot, newPitch] = await Promise.all([
@@ -195,11 +233,9 @@ function App() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(245, 158, 11, 0.08)', border: '1px solid rgba(245, 158, 11, 0.2)', padding: '6px 12px', borderRadius: '8px', fontSize: '12px' }}>
             <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'var(--accent-amber)', display: 'inline-block' }} />
             <span className="text-amber" style={{ fontWeight: '500' }}>Workspace changes detected.</span>
-            {apiKey && (
-              <button onClick={handleRegenerateAll} className="btn btn-primary" style={{ padding: '2px 8px', fontSize: '10.5px', height: 'auto', background: 'var(--accent-amber)', boxShadow: 'none' }}>
-                Regenerate
-              </button>
-            )}
+            <button onClick={handleRegenerateAll} className="btn btn-primary" style={{ padding: '2px 8px', fontSize: '10.5px', height: 'auto', background: 'var(--accent-amber)', boxShadow: 'none' }}>
+              Regenerate
+            </button>
           </div>
         )}
 

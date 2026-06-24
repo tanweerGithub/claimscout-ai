@@ -48,18 +48,18 @@ export const mockLandscapeData = {
     { id: "core", label: "AeroShield (Our Project)", type: "core", x: 400, y: 250, r: 24, group: "center" },
     
     // Patent Nodes
-    { id: "pat1", label: "US-1049283-B2 (Ultrasonic Array)", type: "patent", x: 240, y: 150, r: 16, group: "ultrasonic" },
-    { id: "pat2", label: "US-1182734-A1 (UWB Swarms)", type: "patent", x: 560, y: 150, r: 16, group: "swarm" },
+    { id: "pat1", label: "US-1049283-B2 (Ultrasonic Array)", type: "patent", x: 280, y: 160, r: 16, group: "ultrasonic" },
+    { id: "pat2", label: "US-1182734-A1 (UWB Swarms)", type: "patent", x: 520, y: 160, r: 16, group: "swarm" },
     
     // Competitor Nodes
-    { id: "comp1", label: "SkyAvoid SA-Pulse (LiDAR FPGA)", type: "competitor", x: 240, y: 350, r: 18, group: "lidar" },
-    { id: "comp2", label: "GeoNav SLAM (Stereo Vision)", type: "competitor", x: 560, y: 350, r: 18, group: "vision" },
+    { id: "comp1", label: "SkyAvoid SA-Pulse (LiDAR FPGA)", type: "competitor", x: 280, y: 340, r: 18, group: "lidar" },
+    { id: "comp2", label: "GeoNav SLAM (Stereo Vision)", type: "competitor", x: 520, y: 340, r: 18, group: "vision" },
     
     // Tech Area Clusters (represented as smaller auxiliary nodes)
-    { id: "tech_ultrasonic", label: "Ultrasonic Proximity", type: "tech", x: 100, y: 80, r: 10, group: "ultrasonic" },
-    { id: "tech_uwb", label: "UWB Ranging", type: "tech", x: 700, y: 80, r: 10, group: "swarm" },
-    { id: "tech_lidar", label: "LiDAR Point Clouds", type: "tech", x: 100, y: 420, r: 10, group: "lidar" },
-    { id: "tech_vision", label: "Visual SLAM", type: "tech", x: 700, y: 420, r: 10, group: "vision" }
+    { id: "tech_ultrasonic", label: "Ultrasonic Proximity", type: "tech", x: 140, y: 100, r: 10, group: "ultrasonic" },
+    { id: "tech_uwb", label: "UWB Ranging", type: "tech", x: 660, y: 100, r: 10, group: "swarm" },
+    { id: "tech_lidar", label: "LiDAR Point Clouds", type: "tech", x: 140, y: 400, r: 10, group: "lidar" },
+    { id: "tech_vision", label: "Visual SLAM", type: "tech", x: 660, y: 400, r: 10, group: "vision" }
   ],
   links: [
     { source: "core", target: "pat1", relation: "Claim overlap (Low)", type: "low-risk" },
@@ -77,14 +77,14 @@ export const mockLandscapeData = {
       title: "Low-Light / Dust Active Sensor Fusion",
       description: "Combining solid-state LiDAR with optical flow navigation. None of the competitors function in high-dust/dark mining tunnels or emergency scenarios where cameras fail and high-cost LiDAR is prohibitive. AeroShield fills this by fusing cheap solid-state LiDAR (under $200) with infrared-illuminated optical flow.",
       x: 400,
-      y: 380
+      y: 370
     },
     {
       id: "ws2",
       title: "Edge-AI Onboard Claim Bypass",
       description: "Running lightweight CNN-based obstacle segmentation models directly on STM32 or low-end Raspberry Pi microprocessors, bypassing patented expensive hardware (like SkyAvoid's custom FPGA or GeoNav's Jetson Orin Nano).",
       x: 400,
-      y: 110
+      y: 130
     }
   ]
 };

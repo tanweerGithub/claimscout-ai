@@ -1,0 +1,3 @@
+STARTUP IDEA SPECIFICATION
+Title: BurgerBot (Automated Hamburger Assembly Kiosk)
+Description: An autonomous robotic food preparation kiosk that grills fresh beef patties, toasts buns, applies condiments (ketchup, mustard, mayo), slices tomatoes, and wraps custom hamburgers on-demand. It utilizes a dual-sided clamshell contact grill, rotating squeeze-nozzles driven by stepper motors, and a touch-screen ordering interface. Designed for 24/7 operation in micro-locations like airports, college campuses, and transit hubs.

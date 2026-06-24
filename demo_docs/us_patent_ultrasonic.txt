@@ -1,0 +1,16 @@
+PATENT SPECIFICATION
+Patent Number: US-1049283-B2
+Title: Ultrasonic Obstacle Avoidance for Micro-UAVs
+Inventor: Li Wei, Shenzhen Aero-Tech Corp.
+Year: 2021
+
+SUMMARY:
+This patent describes an ultrasonic-based proximity detection system for micro-UAVs. By mounting ultrasonic sensor transceivers radially around the chassis, the drone measures spatial boundaries in indoor environments and overrides user pilot commands if flight limits are exceeded.
+
+DETAILED DESCRIPTION & CLAIMS:
+What is claimed is:
+1. A collision avoidance system for a micro unmanned aerial vehicle (micro-UAV) comprising:
+   - An array of at least eight ultrasonic transceivers mounted radially around the perimeter of a vehicle chassis, wherein each transceiver is spaced equidistantly to measure proximity to lateral walls;
+   - A microcontroller configured to query each of the eight transceivers at a sampling frequency of at least 40Hz;
+   - An autopilot controller configured to receive distance values from the microcontroller and generate flight vector overrides;
+   - Wherein the autopilot controller overrides user roll and pitch commands and forces a repelling velocity vector when a distance reading from any transceiver falls below a threshold value of 1.5 meters.

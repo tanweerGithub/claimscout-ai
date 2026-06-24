@@ -1,0 +1,15 @@
+PATENT SPECIFICATION
+Patent Number: US-1102938-A1
+Title: Precision Volumetric Sauce Dispensation Grid
+Owner: FoodTech Automation Labs
+Year: 2022
+
+SUMMARY:
+A patent describing a fixed grid of overhead condiment dispenser valves. Pressurized air pistons compress volumetric chambers to dispense precise portions of ketchup, mustard, or mayonnaise onto buns arranged in a matching layout tray.
+
+DETAILED DESCRIPTION & CLAIMS:
+What is claimed is:
+1. An apparatus for high-speed food assembly, comprising:
+   - A grid of at least six overhead dispenser valves containing volumetric chambers for viscous liquids;
+   - A pneumatic air system configured to compress the volumetric chambers simultaneously;
+   - Wherein the grid dispensates precise condiment portions onto a tray of buns placed directly underneath the valves.

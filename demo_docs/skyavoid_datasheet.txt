@@ -1,0 +1,15 @@
+COMPETITOR SYSTEM SPECIFICATION
+Product: SA-Pulse 2 Obstacle Avoidance Kit
+Manufacturer: SkyAvoid Corporation
+Year: 2024
+
+SUMMARY:
+The SA-Pulse 2 is a high-cost ($3,200) hardware plug-in for commercial drones. It utilizes a spinning solid-state LiDAR (20-meter scanning range) combined with an onboard FPGA processor that clusters raw point clouds to detect obstacles.
+
+SPECIFICATIONS & TECH STACK:
+- Sensor Type: Solid-state LiDAR, 360-degree horizontal field-of-view, 15-degree vertical field-of-view.
+- Weight: 140 grams (requires medium-to-large heavy lift drone frames).
+- Power Consumption: 12 Watts (significantly reduces drone battery flight times).
+- Processor: Custom onboard FPGA (Field Programmable Gate Array) running proprietary spatial clustering algorithms.
+- Interfaces: CAN bus integration, fully compatible with Pixhawk and ArduPilot autopilots.
+- Cost: $3,200 USD per unit.

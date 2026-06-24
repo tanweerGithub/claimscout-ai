@@ -281,9 +281,14 @@ export default function LandscapeMap({ landscapeData }) {
             <p style={{ margin: 0, fontSize: '12.5px', lineHeight: 1.4 }}>{selectedWhiteSpace.description}</p>
           </div>
         ) : (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <HelpCircle size={14} className="text-cyan" />
-            <span style={{ fontSize: '12.5px', color: 'var(--text-secondary)' }}>Click nodes or GAP highlights to inspect claims.</span>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+              <Target size={14} className="text-blue" />
+              <h3 style={{ margin: 0, fontSize: '13px', color: 'var(--text-primary)', textTransform: 'none', letterSpacing: 'normal' }}>Interactive Tech Landscape</h3>
+            </div>
+            <p style={{ margin: 0, fontSize: '12.5px', lineHeight: 1.4, color: 'var(--text-secondary)' }}>
+              Click any node on the graph (Patents in <span className="text-purple" style={{ fontWeight: 600 }}>purple</span>, Competitors in <span className="text-amber" style={{ fontWeight: 600 }}>amber</span>, Core in <span className="text-blue" style={{ fontWeight: 600 }}>blue</span>) to discover overlapping claims, architectural alignment, or select <span className="text-cyan" style={{ fontWeight: 600 }}>GAP</span> regions to view market white spaces.
+            </p>
           </div>
         )}
       </div>

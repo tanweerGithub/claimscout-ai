@@ -2,6 +2,36 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Send, Sparkles, AlertTriangle, User, ShieldAlert, Zap, Loader } from 'lucide-react';
 import { askAgent } from '../utils/gemini';
 
+const getMockResponse = (text, persona, currentIdea, documents) => {
+  const query = text.toLowerCase();
+  const ideaTitle = currentIdea.title || "your project";
+  
+  if (persona === 'griller') {
+    if (query.includes('overlap') || query.includes('us-1049283') || query.includes('patent') || query.includes('doc1') || query.includes('doc2')) {
+      return `[DEMO ANSWER: VC CRITIC] Looking at US-1049283-B2 (Ultrasonic Obstacle Avoidance), they claim an array of 8+ transceivers overriding pilot inputs. If ${ideaTitle} ever integrates ultrasonic sensors, you'll hit a direct infringement. For now, you claim micro-LiDAR + optical flow, which is technically safe, but how do you prove your optical flow works in heavy dust? GeoNav struggles there, and they have $10M in funding.`;
+    }
+    if (query.includes('sensor') || query.includes('bom') || query.includes('hardware') || query.includes('cost')) {
+      return `[DEMO ANSWER: VC CRITIC] Your BOM is under $150. That's cheap, but it tells me your reliability is low. SkyAvoid SA-Pulse uses a $3,200 FPGA-accelerated LiDAR. Customers in defense or mining don't care about a $100 price difference if your cheaper sensors fail and crash a $50,000 drone. How does ${ideaTitle} guarantee 99.9% collision avoidance reliability?`;
+    }
+    if (query.includes('skyavoid') || query.includes('competitor') || query.includes('geonav') || query.includes('doc3') || query.includes('doc4')) {
+      return `[DEMO ANSWER: VC CRITIC] SkyAvoid has active CAN bus integrations and solid-state LiDAR. GeoNav has stereo vision visual SLAM. If your system is software-only, what stops them from adding a lightweight software update and wiping out your USP overnight? You need defensive patents, and you don't have any listed in your workspace.`;
+    }
+    return `[DEMO ANSWER: VC CRITIC] That's a soft answer. I'm looking at your reference library. None of these competitor files (like SkyAvoid or GeoNav) show a software-only edge-AI fusion stack for low-light. But how do you plan to acquire users? If your tech is just 'open-source modules', you have no moat. Convince me otherwise.`;
+  } else {
+    // Co-pilot
+    if (query.includes('workaround') || query.includes('bypass') || query.includes('avoid') || query.includes('infringement')) {
+      return `[DEMO ANSWER: CO-PILOT] To bypass US-1049283-B2, we must avoid any threshold-based 'ultrasonic' roll/pitch overrides. Our design is perfect because we rely on LiDAR distance matrices and infrared optical flow. I recommend documenting our software-defined vector field calculation in our PRD to prove our math is distinct from their microcontroller loop.`;
+    }
+    if (query.includes('design') || query.includes('architecture') || query.includes('sensor') || query.includes('hardware')) {
+      return `[DEMO ANSWER: CO-PILOT] For ${ideaTitle}, we should fuse: 1) A low-cost single-point LiDAR pointing forward. 2) A bottom-facing optical flow camera with infrared LED illumination. This lets the drone hold its position in complete darkness or high dust, filling the exact gap in competitor tech (like GeoNav, which fails in dark tunnels).`;
+    }
+    if (query.includes('pitch') || query.includes('slides') || query.includes('deck') || query.includes('present')) {
+      return `[DEMO ANSWER: CO-PILOT] I've generated a 6-slide Pitch Deck for you under the 'Pitch & PRD' tab! Focus your pitch on the $150 Bill of Materials (BOM) advantage and legal safety. Let's make sure the slides clearly demarcate our software advantages over SkyAvoid's custom FPGA hardware.`;
+    }
+    return `[DEMO ANSWER: CO-PILOT] That's a great engineering vector. For ${ideaTitle}, we can leverage lightweight neural networks running directly on standard ARM microcontrollers. This bypasses expensive FPGAs while keeping our sensor fusion pipeline fast. What aspect of the design should we draft next?`;
+  }
+};
+
 export default function AgentChat({ 
   messages, 
   setMessages, 
@@ -36,12 +66,12 @@ export default function AgentChat({
     setIsLoading(true);
 
     if (!apiKey) {
-      // Prompt user to enter API key if not present, and give a simulated reply
+      // Respond with a context-aware mock response in Demo Mode
       setTimeout(() => {
         const botMsg = {
           id: 'msg_bot_' + Date.now(),
           sender: 'agent',
-          text: `[SYSTEM: DEMO MODE] I see your question! Please add your Gemini API Key in the settings modal (top-right gear icon) to get live, context-aware answers generated from your reference library. Otherwise, I can only run in demo mode.`
+          text: getMockResponse(text, chatPersona, currentIdea, documents)
         };
         setMessages(prev => [...prev, botMsg]);
         setIsLoading(false);

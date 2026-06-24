@@ -1,0 +1,14 @@
+COMPETITOR KITCHEN & SYSTEM SPECIFICATION
+Competitor: McDonald's Assembly & Cooking Operations
+Owner: McDonald's Corporation
+Year: 2023
+
+SUMMARY:
+McDonald's utilizes high-throughput assembly line kitchen layouts. Burgers are grilled on dual-sided clamshell contact grills (cooking top and bottom of patties simultaneously in under 45 seconds). Preparation and condiment application are completed manually by assembly workers at localized prep tables.
+
+SPECIFICATIONS & LIMITATIONS:
+- Grill Type: Clamshell contact grill (dual heated plates, top and bottom).
+- Labor Model: Fully manual human assembly line (buns, sauces, wrapping).
+- Overhead Costs: High retail space requirements, shift schedules, training, safety management.
+- Unit Throughput: 1 burger per 20 seconds during peak hours.
+- Major Limitation: Cannot operate in ultra-small footprints (under 50 sq ft) or run 24/7 without night-shift labor costs.

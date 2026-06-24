@@ -559,14 +559,7 @@ input, textarea, button {
   overflow-y: auto;
 }
 
-.landscape-details.idle {
-  width: auto;
-  padding: 10px 16px;
-  background: rgba(11, 17, 32, 0.75);
-  border-radius: 20px;
-  right: 20px;
-  bottom: 20px;
-}
+
 
 .landscape-details h3 {
   font-size: 13px;
@@ -734,14 +727,7 @@ input, textarea, button {
   height: 100%;
 }
 
-@media (min-width: 1024px) {
-  .pitch-container {
-    flex-direction: row;
-    align-items: stretch;
-    overflow-y: hidden;
-    gap: 20px;
-  }
-}
+
 
 .pitch-container.full-width {
   max-width: 100%;
@@ -765,13 +751,7 @@ input, textarea, button {
   overflow: hidden;
 }
 
-@media (min-width: 1024px) {
-  .slide-deck-viewer {
-    flex: 1.5;
-    margin: 0;
-    max-height: 100%;
-  }
-}
+
 
 .slide-bg-glow {
   position: absolute;
@@ -895,14 +875,7 @@ input, textarea, button {
   gap: 14px;
 }
 
-@media (min-width: 1024px) {
-  .slide-editor-panel {
-    flex: 1;
-    margin: 0;
-    max-height: 100%;
-    overflow-y: auto;
-  }
-}
+
 
 .slide-editor-panel h3 {
   font-size: 13px;
@@ -1398,12 +1371,11 @@ input, textarea, button {
 
 @keyframes heartbeat {
   0%, 100% {
-    transform: scale(1);
     opacity: 0.8;
+    filter: drop-shadow(0 0 1px rgba(6, 182, 212, 0.3));
   }
   50% {
-    transform: scale(1.05);
     opacity: 1;
-    filter: drop-shadow(0 0 4px var(--accent-cyan));
+    filter: drop-shadow(0 0 8px rgba(6, 182, 212, 0.95));
   }
 }

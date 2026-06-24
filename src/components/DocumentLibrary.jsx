@@ -256,23 +256,21 @@ export default function DocumentLibrary({
           ))}
         </div>
 
-        {apiKey && (
-          <button 
-            className="btn" 
-            onClick={onGenerateAll} 
-            style={{ 
-              marginTop: '24px', 
-              width: '100%', 
-              justifyContent: 'center',
-              background: 'rgba(6, 182, 212, 0.05)',
-              borderColor: 'rgba(6, 182, 212, 0.2)',
-              color: 'var(--accent-cyan)'
-            }}
-          >
-            <Sparkles size={14} style={{ marginRight: '6px' }} />
-            Regenerate Landscape
-          </button>
-        )}
+        <button 
+          className="btn" 
+          onClick={onGenerateAll} 
+          style={{ 
+            marginTop: '24px', 
+            width: '100%', 
+            justifyContent: 'center',
+            background: 'rgba(6, 182, 212, 0.05)',
+            borderColor: 'rgba(6, 182, 212, 0.2)',
+            color: 'var(--accent-cyan)'
+          }}
+        >
+          <Sparkles size={14} style={{ marginRight: '6px' }} />
+          Regenerate Landscape
+        </button>
       </div>
     </div>
   );

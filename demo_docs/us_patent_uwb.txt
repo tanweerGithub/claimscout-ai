@@ -1,0 +1,16 @@
+PATENT SPECIFICATION
+Patent Number: US-1182734-A1
+Title: Multi-Agent Drone Swarm Coordination via UWB Ranging
+Inventors: Dr. Marcus Vance, MIT Robotics Lab
+Year: 2023
+
+SUMMARY:
+A method for coordinating multiple UAV agents in a decentralized swarm without centralized GPS. Drones calculate mutual distances dynamically using ultra-wideband (UWB) time-of-flight pulses and apply virtual-spring forces to maintain formation.
+
+DETAILED DESCRIPTION & CLAIMS:
+What is claimed is:
+1. A method for relative spatial coordination among a plurality of unmanned aerial vehicles (UAVs) in a swarm, comprising:
+   - Transmitting ultra-wideband (UWB) pulses between at least three nodes mounted on different UAV chassis in the swarm;
+   - Calculating mutual time-of-flight ranges between each of the nodes in real-time;
+   - Applying a decentralized virtual-spring force mathematical model locally on each UAV processor;
+   - Dynamically recalculating a collision-free trajectory vector for each UAV to maintain relative distance without centralized GPS coordinates.

@@ -1,0 +1,16 @@
+COMPETITOR PRESS RELEASE & PRODUCT BRIEF
+Product: GeoNav SLAM Core v4
+Developer: GeoNav Technologies Labs
+Year: 2023
+
+SUMMARY:
+GeoNav develops software-only visual SLAM (Simultaneous Localization and Mapping) utilizing stereoscopic cameras and an IMU. It builds real-time sparse point clouds to navigate, but fails in low-light, dense dust, or high-glare environments.
+
+TECHNOLOGY OVERVIEW:
+- System Type: Software-only Visual-Inertial Odometry (VIO) visual SLAM.
+- Hardware Requirements: Requires stereoscopic camera sensors and high-performance computing boards (specifically NVIDIA Jetson Orin Nano).
+- Target Environments: Clear indoor spaces and outdoor urban navigation.
+- Major Technical Limitations:
+  1. Requires active ambient illumination (>50 lux); completely fails in dark mining tunnels or unlit warehouse environments.
+  2. Susceptible to visual distortions in high-glare, foggy, or high-dust environments.
+  3. Fails to resolve thin obstacles (such as power wires or fine wire meshes) due to camera resolution boundaries.

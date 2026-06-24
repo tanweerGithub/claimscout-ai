@@ -1,0 +1,16 @@
+PATENT SPECIFICATION
+Patent Number: US-9834721-B2
+Title: Robotic Spatula and Thermal Sensor System for Automatic Patty Turning
+Owner: RoboKitchens Inc.
+Year: 2019
+
+SUMMARY:
+A patent covering a mechanical spatula arm designed to flip meat patties on a flat-top grill. It uses infrared thermal sensors mounted on the arm to monitor the top surface temperature of a patty and determines the optimal time to slide the spatula underneath and flip it.
+
+DETAILED DESCRIPTION & CLAIMS:
+What is claimed is:
+1. A robotic cooking apparatus comprising:
+   - A flat-top cooking surface for heating a food patty from below;
+   - A multi-jointed robotic arm holding a spatula utensil;
+   - An infrared sensor directed at the cooking surface to measure patty top-surface temperature;
+   - A motor controller that coordinates the robotic arm to slide the spatula beneath the food patty and execute a 180-degree flip when the temperature reading reaches a predetermined threshold.

@@ -150,11 +150,11 @@ Your output must be a single JSON object matching this structure EXACTLY (do not
     // - id: unique string (e.g. "pat1", "comp1")
     // - label: short title (e.g. "US-1049283-B2 (Ultrasonic)")
     // - type: "patent" | "competitor" | "tech"
-    // - x: number between 50 and 750
-    // - y: number between 30 and 470
+    // - x: number between 130 and 670
+    // - y: number between 80 and 420
     // - r: radius (14-20)
     // - group: category name (e.g. "ultrasonic", "lidar")
-    { "id": "pat1", "label": "...", "type": "patent", "x": 200, "y": 150, "r": 16, "group": "..." }
+    { "id": "pat1", "label": "...", "type": "patent", "x": 280, "y": 160, "r": 16, "group": "..." }
   ],
   "links": [
     // Create links between your core node and patents/competitor nodes, plus links to tech nodes.
@@ -172,7 +172,7 @@ Your output must be a single JSON object matching this structure EXACTLY (do not
       "title": "[Title of White Space Opportunity]",
       "description": "[Detailed explanation of why this is an opportunity and how user's idea leverages it to dodge competitor patents/products]",
       "x": 250,
-      "y": 380
+      "y": 370
     }
   ]
 }`;
