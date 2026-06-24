@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Target, Shield, HelpCircle, AlertTriangle, Cpu } from 'lucide-react';
+import { Target, Shield, HelpCircle, AlertTriangle, Cpu, X } from 'lucide-react';
 
 export default function LandscapeMap({ landscapeData }) {
   const [selectedNode, setSelectedNode] = useState(null);
@@ -40,7 +40,7 @@ export default function LandscapeMap({ landscapeData }) {
     <div className="landscape-container">
       {/* SVG Interactive Canvas */}
       <div className="map-viewport">
-        <svg viewBox="0 0 800 400" className="map-svg">
+        <svg viewBox="0 0 800 500" className="map-svg">
           <defs>
             <radialGradient id="coreGradient" cx="50%" cy="50%" r="50%">
               <stop offset="0%" stopColor="#3b82f6" stopOpacity="1" />
@@ -219,12 +219,21 @@ export default function LandscapeMap({ landscapeData }) {
       </div>
 
       {/* Detail Pane */}
-      <div className="landscape-details">
+      <div className={`landscape-details ${selectedNode || selectedWhiteSpace ? 'active' : 'idle'}`}>
         {selectedNode ? (
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-              <span className={`doc-type-badge ${selectedNode.type}`}>{selectedNode.type}</span>
-              <h3 style={{ margin: 0, color: 'var(--text-primary)' }}>{selectedNode.label}</h3>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px', marginBottom: '8px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span className={`doc-type-badge ${selectedNode.type}`}>{selectedNode.type}</span>
+                <h3 style={{ margin: 0, color: 'var(--text-primary)' }}>{selectedNode.label}</h3>
+              </div>
+              <button 
+                onClick={() => setSelectedNode(null)} 
+                style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', padding: '2px', display: 'flex', alignItems: 'center' }}
+                title="Clear Selection"
+              >
+                <X size={14} />
+              </button>
             </div>
             
             {connectedLinks.length > 0 ? (
@@ -232,7 +241,7 @@ export default function LandscapeMap({ landscapeData }) {
                 <h4 style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '4px' }}>
                   Landscape Relations:
                 </h4>
-                <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '4px', paddingLeft: 0 }}>
                   {connectedLinks.map((link, idx) => {
                     const sourceNode = landscapeData.nodes.find(n => n.id === link.source);
                     const targetNode = landscapeData.nodes.find(n => n.id === link.target);
@@ -251,26 +260,30 @@ export default function LandscapeMap({ landscapeData }) {
                 </ul>
               </div>
             ) : (
-              <p style={{ fontStyle: 'italic', fontSize: '12px' }}>Click other nodes to map overlaps and dependencies.</p>
+              <p style={{ fontStyle: 'italic', fontSize: '12px', margin: 0 }}>Click other nodes to map overlaps and dependencies.</p>
             )}
           </div>
         ) : selectedWhiteSpace ? (
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
-              <Cpu size={16} className="text-cyan" />
-              <h3 style={{ margin: 0 }}>White Space Opportunity: {selectedWhiteSpace.title}</h3>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px', marginBottom: '6px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Cpu size={16} className="text-cyan" />
+                <h3 style={{ margin: 0, color: 'var(--accent-cyan)' }}>White Space: {selectedWhiteSpace.title}</h3>
+              </div>
+              <button 
+                onClick={() => setSelectedWhiteSpace(null)} 
+                style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', padding: '2px', display: 'flex', alignItems: 'center' }}
+                title="Clear Selection"
+              >
+                <X size={14} />
+              </button>
             </div>
-            <p>{selectedWhiteSpace.description}</p>
+            <p style={{ margin: 0, fontSize: '12.5px', lineHeight: 1.4 }}>{selectedWhiteSpace.description}</p>
           </div>
         ) : (
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
-              <Target size={16} className="text-blue" />
-              <h3 style={{ margin: 0 }}>Interactive Tech Landscape</h3>
-            </div>
-            <p>
-              Click any node on the graph (Patents in <span className="text-purple" style={{ fontWeight: 600 }}>purple</span>, Competitors in <span className="text-amber" style={{ fontWeight: 600 }}>amber</span>, Core in <span className="text-blue" style={{ fontWeight: 600 }}>blue</span>) to discover overlapping claims, architectural alignment, or select <span className="text-cyan" style={{ fontWeight: 600 }}>GAP</span> regions to view market white spaces.
-            </p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <HelpCircle size={14} className="text-cyan" />
+            <span style={{ fontSize: '12.5px', color: 'var(--text-secondary)' }}>Click nodes or GAP highlights to inspect claims.</span>
           </div>
         )}
       </div>

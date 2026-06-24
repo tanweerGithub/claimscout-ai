@@ -144,17 +144,17 @@ ${docsContext}
 Your output must be a single JSON object matching this structure EXACTLY (do not include any additional keys or markdown wrappers outside the JSON):
 {
   "nodes": [
-    { "id": "core", "label": "[User's Project Name]", "type": "core", "x": 400, "y": 200, "r": 24, "group": "center" },
+    { "id": "core", "label": "[User's Project Name]", "type": "core", "x": 400, "y": 250, "r": 24, "group": "center" },
     // Add nodes for each patent and competitor document. Match coordinates to form clear visual groupings (e.g. cluster ultrasonic patents in one area, LiDAR in another).
     // Node attributes: 
     // - id: unique string (e.g. "pat1", "comp1")
     // - label: short title (e.g. "US-1049283-B2 (Ultrasonic)")
     // - type: "patent" | "competitor" | "tech"
     // - x: number between 50 and 750
-    // - y: number between 30 and 370
+    // - y: number between 30 and 470
     // - r: radius (14-20)
     // - group: category name (e.g. "ultrasonic", "lidar")
-    { "id": "pat1", "label": "...", "type": "patent", "x": 200, "y": 100, "r": 16, "group": "..." }
+    { "id": "pat1", "label": "...", "type": "patent", "x": 200, "y": 150, "r": 16, "group": "..." }
   ],
   "links": [
     // Create links between your core node and patents/competitor nodes, plus links to tech nodes.
@@ -172,7 +172,7 @@ Your output must be a single JSON object matching this structure EXACTLY (do not
       "title": "[Title of White Space Opportunity]",
       "description": "[Detailed explanation of why this is an opportunity and how user's idea leverages it to dodge competitor patents/products]",
       "x": 250,
-      "y": 320
+      "y": 380
     }
   ]
 }`;

@@ -164,7 +164,7 @@ export default function PitchGenerator({
       </div>
 
       {/* Workspace Area */}
-      <div style={{ flex: 1, minHeight: 0 }}>
+      <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         {subTab === 'pitch' ? (
           <div className="pitch-container">
             {/* Slide */}
