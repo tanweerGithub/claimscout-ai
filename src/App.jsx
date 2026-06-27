@@ -443,7 +443,7 @@ function App() {
                 To enable live AI generations for the tech landscape map, patent risk scoring, SWOT matrix, and chat agents, provide a Google Gemini API Key.
               </p>
               
-              <div className="input-group">
+              <div className="input-group" style={{ marginBottom: tempKey && !tempKey.startsWith('AIzaSy') ? '8px' : '20px' }}>
                 <label>Gemini API Key</label>
                 <input 
                   type="password" 
@@ -453,6 +453,21 @@ function App() {
                   placeholder="Enter AIzaSy..."
                 />
               </div>
+              
+              {tempKey && !tempKey.startsWith('AIzaSy') && (
+                <div style={{
+                  marginBottom: '20px',
+                  padding: '10px 14px',
+                  background: 'rgba(245, 158, 11, 0.07)',
+                  border: '1px solid rgba(245, 158, 11, 0.2)',
+                  borderRadius: '8px',
+                  fontSize: '12px',
+                  color: 'var(--accent-amber)',
+                  lineHeight: 1.5
+                }}>
+                  ⚠️ <strong>Key Format Notice</strong>: Gemini API keys from Google AI Studio always start with <code>AIzaSy</code>. Your key starts with <code>{tempKey.slice(0, 6)}</code>. GCP Service Account tokens or Vertex OAuth keys (often starting with <code>AQ.</code>) will fail with CORS preflight errors at the Google API gateway.
+                </div>
+              )}
 
               <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '20px', lineHeight: 1.4 }}>
                 Don't have a key? You can get a free one from{' '}

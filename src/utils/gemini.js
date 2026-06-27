@@ -1,7 +1,7 @@
 // Gemini API direct REST integration helper
 // Uses client-side fetch to ensure no server costs and easy client-side configuration.
 
-const GEMINI_API_URL = "https://generativeai.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
+const GEMINI_API_URL = "https://generativeai.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
 
 /**
  * Call the Gemini REST API with the given contents and configuration
