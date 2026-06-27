@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Presentation, FileText, ChevronLeft, ChevronRight, Edit2, Sparkles, Copy, Check, Loader } from 'lucide-react';
 import { callGemini } from '../utils/gemini';
+import { formatMarkdown, parseBold } from '../utils/markdown';
 
 export default function PitchGenerator({ 
   slides, 
@@ -117,24 +118,7 @@ export default function PitchGenerator({
 
   // Helper to render markdown headings into simple HTML tags
   const renderPRD = (text) => {
-    return text.split('\n').map((line, idx) => {
-      if (line.startsWith('# ')) {
-        return <h1 key={idx}>{line.replace('# ', '')}</h1>;
-      }
-      if (line.startsWith('## ')) {
-        return <h2 key={idx}>{line.replace('## ', '')}</h2>;
-      }
-      if (line.startsWith('### ')) {
-        return <h3 key={idx}>{line.replace('### ', '')}</h3>;
-      }
-      if (line.startsWith('- ')) {
-        return <li key={idx}>{line.replace('- ', '')}</li>;
-      }
-      if (line.trim() === '') {
-        return <div key={idx} style={{ height: '10px' }} />;
-      }
-      return <p key={idx}>{line}</p>;
-    });
+    return formatMarkdown(text);
   };
 
   return (
@@ -198,7 +182,7 @@ export default function PitchGenerator({
                     {currentSlide.bullets.map((bullet, idx) => (
                       <div key={idx} className="slide-bullet-item">
                         <ChevronRight size={16} />
-                        <p>{bullet}</p>
+                        <p>{parseBold(bullet)}</p>
                       </div>
                     ))}
                   </div>

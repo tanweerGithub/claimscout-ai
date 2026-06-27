@@ -1,18 +1,21 @@
 import React, { useState } from 'react';
-import { Target, Shield, HelpCircle, AlertTriangle, Cpu, X } from 'lucide-react';
+import { Target, Shield, HelpCircle, AlertTriangle, Cpu, X, ChevronUp, ChevronDown } from 'lucide-react';
 
 export default function LandscapeMap({ landscapeData }) {
   const [selectedNode, setSelectedNode] = useState(null);
   const [selectedWhiteSpace, setSelectedWhiteSpace] = useState(null);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   const handleNodeClick = (node) => {
     setSelectedWhiteSpace(null);
     setSelectedNode(node);
+    setIsExpanded(true);
   };
 
   const handleWhiteSpaceClick = (ws) => {
     setSelectedNode(null);
     setSelectedWhiteSpace(ws);
+    setIsExpanded(true);
   };
 
   const getRelationColorClass = (type) => {
@@ -222,78 +225,170 @@ export default function LandscapeMap({ landscapeData }) {
         </svg>
       </div>
 
-      {/* Detail Pane */}
-      <div className={`landscape-details ${selectedNode || selectedWhiteSpace ? 'active' : 'idle'}`}>
-        {selectedNode ? (
-          <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px', marginBottom: '8px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span className={`doc-type-badge ${selectedNode.type}`}>{selectedNode.type}</span>
-                <h3 style={{ margin: 0, color: 'var(--text-primary)' }}>{selectedNode.label}</h3>
-              </div>
-              <button 
-                onClick={() => setSelectedNode(null)} 
-                style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', padding: '2px', display: 'flex', alignItems: 'center' }}
-                title="Clear Selection"
-              >
-                <X size={14} />
-              </button>
-            </div>
-            
-            {connectedLinks.length > 0 ? (
-              <div style={{ marginTop: '10px' }}>
-                <h4 style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '4px' }}>
-                  Landscape Relations:
-                </h4>
-                <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '4px', paddingLeft: 0 }}>
-                  {connectedLinks.map((link, idx) => {
-                    const sourceNode = safeNodes.find(n => n.id === link.source);
-                    const targetNode = safeNodes.find(n => n.id === link.target);
-                    if (!sourceNode || !targetNode) return null;
-                    const relatedNode = sourceNode.id === selectedNode.id ? targetNode : sourceNode;
-                    
-                    return (
-                      <li key={idx} style={{ fontSize: '12.5px', display: 'flex', gap: '6px' }}>
-                        <span className="text-muted">→</span>
-                        <span>{relatedNode.label} : </span>
-                        <span className={getRelationColorClass(link.type)} style={{ fontWeight: '500' }}>
-                          {link.relation}
-                        </span>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </div>
+      {/* Detail Pane (Bottom Drawer) */}
+      <div 
+        className={`landscape-details ${isExpanded ? 'expanded' : ''}`}
+        style={{ cursor: 'pointer' }}
+        onClick={() => setIsExpanded(!isExpanded)}
+      >
+        {/* Drawer Header (Always Visible) */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', minHeight: '40px', gap: '20px' }}>
+          {/* Left Column: Title / Badge */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexShrink: 0 }}>
+            {selectedNode ? (
+              <>
+                <span className={`doc-type-badge ${selectedNode.type}`} style={{ padding: '4px 8px', borderRadius: '4px', fontSize: '10.5px' }}>{selectedNode.type}</span>
+                <h3 style={{ margin: 0, color: 'var(--text-primary)', fontSize: '14.5px', textTransform: 'none', fontWeight: '600' }}>{selectedNode.label}</h3>
+              </>
+            ) : selectedWhiteSpace ? (
+              <>
+                <Cpu size={16} className="text-cyan" />
+                <h3 style={{ margin: 0, color: 'var(--accent-cyan)', fontSize: '14.5px', textTransform: 'none', fontWeight: '600' }}>White Space: {selectedWhiteSpace.title}</h3>
+              </>
             ) : (
-              <p style={{ fontStyle: 'italic', fontSize: '12px', margin: 0 }}>Click other nodes to map overlaps and dependencies.</p>
+              <>
+                <Target size={15} className="text-blue" />
+                <h3 style={{ margin: 0, color: 'var(--text-primary)', fontSize: '13.5px', textTransform: 'none', fontWeight: '600' }}>Interactive Tech Landscape</h3>
+              </>
             )}
           </div>
-        ) : selectedWhiteSpace ? (
-          <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px', marginBottom: '6px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Cpu size={16} className="text-cyan" />
-                <h3 style={{ margin: 0, color: 'var(--accent-cyan)' }}>White Space: {selectedWhiteSpace.title}</h3>
-              </div>
+
+          {/* Center Column: One-line preview summary */}
+          <div style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: '12.5px', color: 'var(--text-secondary)' }}>
+            {selectedNode ? (
+              connectedLinks.length > 0 
+                ? `Maps to ${connectedLinks.length} claim overlaps in the current tech landscape. Click to inspect.`
+                : "No claim overlaps mapped."
+            ) : selectedWhiteSpace ? (
+              selectedWhiteSpace.description
+            ) : (
+              "Click any patent, competitor, or core node to map overlaps, or select GAP regions."
+            )}
+          </div>
+
+          {/* Right Column: Expand/Collapse controls */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexShrink: 0 }} onClick={(e) => e.stopPropagation()}>
+            {(selectedNode || selectedWhiteSpace) && (
               <button 
-                onClick={() => setSelectedWhiteSpace(null)} 
-                style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', padding: '2px', display: 'flex', alignItems: 'center' }}
+                onClick={() => {
+                  setSelectedNode(null);
+                  setSelectedWhiteSpace(null);
+                  setIsExpanded(false);
+                }} 
+                className="btn btn-icon"
+                style={{ height: '26px', width: '26px', padding: 0, background: 'rgba(255,255,255,0.05)', border: 'none', cursor: 'pointer' }}
                 title="Clear Selection"
               >
-                <X size={14} />
+                <X size={12} />
               </button>
-            </div>
-            <p style={{ margin: 0, fontSize: '12.5px', lineHeight: 1.4 }}>{selectedWhiteSpace.description}</p>
+            )}
+            <button 
+              onClick={() => setIsExpanded(!isExpanded)}
+              className="btn btn-icon"
+              style={{ height: '26px', width: '26px', padding: 0, border: 'none', cursor: 'pointer' }}
+              title={isExpanded ? "Collapse Details" : "Expand Details"}
+            >
+              {isExpanded ? <ChevronDown size={14} /> : <ChevronUp size={14} />}
+            </button>
           </div>
-        ) : (
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
-              <Target size={14} className="text-blue" />
-              <h3 style={{ margin: 0, fontSize: '13px', color: 'var(--text-primary)', textTransform: 'none', letterSpacing: 'normal' }}>Interactive Tech Landscape</h3>
-            </div>
-            <p style={{ margin: 0, fontSize: '12.5px', lineHeight: 1.4, color: 'var(--text-secondary)' }}>
-              Click any node on the graph (Patents in <span className="text-purple" style={{ fontWeight: 600 }}>purple</span>, Competitors in <span className="text-amber" style={{ fontWeight: 600 }}>amber</span>, Core in <span className="text-blue" style={{ fontWeight: 600 }}>blue</span>) to discover overlapping claims, architectural alignment, or select <span className="text-cyan" style={{ fontWeight: 600 }}>GAP</span> regions to view market white spaces.
-            </p>
+        </div>
+
+        {/* Drawer Body (Visible when expanded) */}
+        {isExpanded && (
+          <div 
+            style={{ 
+              marginTop: '16px', 
+              borderTop: '1px solid rgba(255,255,255,0.05)', 
+              paddingTop: '16px', 
+              overflowY: 'auto',
+              flex: 1
+            }}
+            onClick={(e) => e.stopPropagation()} // Prevent collapse when clicking details content
+          >
+            {selectedNode ? (
+              <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 2fr', gap: '24px' }}>
+                <div>
+                  <h4 style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '8px', letterSpacing: '0.5px' }}>
+                    Claims & Relation Alignment
+                  </h4>
+                  {connectedLinks.length > 0 ? (
+                    <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '6px', paddingLeft: 0, margin: 0 }}>
+                      {connectedLinks.map((link, idx) => {
+                        const sourceNode = safeNodes.find(n => n.id === link.source);
+                        const targetNode = safeNodes.find(n => n.id === link.target);
+                        if (!sourceNode || !targetNode) return null;
+                        const relatedNode = sourceNode.id === selectedNode.id ? targetNode : sourceNode;
+                        
+                        return (
+                          <li key={idx} style={{ fontSize: '12.5px', display: 'flex', gap: '6px', alignItems: 'center' }}>
+                            <span className="text-muted">→</span>
+                            <span style={{ fontWeight: '500' }}>{relatedNode.label}</span>
+                            <span className="text-muted">:</span>
+                            <span className={getRelationColorClass(link.type)} style={{ fontWeight: '600' }}>
+                              {link.relation}
+                            </span>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  ) : (
+                    <p style={{ fontStyle: 'italic', fontSize: '12px', margin: 0, color: 'var(--text-muted)' }}>
+                      No direct claim connections mapped.
+                    </p>
+                  )}
+                </div>
+                <div>
+                  <h4 style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '8px', letterSpacing: '0.5px' }}>
+                    Claim Details
+                  </h4>
+                  <p style={{ fontSize: '13px', lineHeight: 1.5, margin: 0, color: 'var(--text-secondary)' }}>
+                    This patent or entity represents a key node in the technology space. It positions your startup on coordinates 
+                    X={selectedNode.x} and Y={selectedNode.y}, overlapping with {connectedLinks.length} mapped entities.
+                  </p>
+                </div>
+              </div>
+            ) : selectedWhiteSpace ? (
+              <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 2fr', gap: '24px' }}>
+                <div>
+                  <h4 style={{ fontSize: '11px', color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: '8px', letterSpacing: '0.5px' }}>
+                    Whitespace Analysis
+                  </h4>
+                  <p style={{ fontSize: '13px', lineHeight: 1.5, margin: 0, color: 'var(--text-secondary)' }}>
+                    <strong>Coordinates:</strong> X={selectedWhiteSpace.x}, Y={selectedWhiteSpace.y}<br />
+                    This gap marks a distinct technical area that is currently unpopulated by patent filings or active competitors, representing a high-potential market opportunity.
+                  </p>
+                </div>
+                <div>
+                  <h4 style={{ fontSize: '11px', color: 'var(--accent-cyan)', textTransform: 'uppercase', marginBottom: '8px', letterSpacing: '0.5px' }}>
+                    Opportunity Description
+                  </h4>
+                  <p style={{ fontSize: '13px', lineHeight: 1.5, margin: 0, color: 'var(--text-primary)' }}>
+                    {selectedWhiteSpace.description}
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '20px' }}>
+                <div>
+                  <h5 style={{ margin: '0 0 6px 0', color: 'var(--accent-blue)', fontSize: '12px', fontWeight: '600' }}>Core Tech (Blue)</h5>
+                  <p style={{ fontSize: '12px', margin: 0, color: 'var(--text-secondary)', lineHeight: 1.4 }}>
+                    Represents your core technical solution and internal claim coordinates based on your workspace setup.
+                  </p>
+                </div>
+                <div>
+                  <h5 style={{ margin: '0 0 6px 0', color: 'var(--accent-purple)', fontSize: '12px', fontWeight: '600' }}>Patent Landscape (Purple)</h5>
+                  <p style={{ fontSize: '12px', margin: 0, color: 'var(--text-secondary)', lineHeight: 1.4 }}>
+                    Shows published patent citations and prior art parsed from your uploaded reference documents.
+                  </p>
+                </div>
+                <div>
+                  <h5 style={{ margin: '0 0 6px 0', color: 'var(--accent-amber)', fontSize: '12px', fontWeight: '600' }}>Competitor/Whitespace (Amber/Cyan)</h5>
+                  <p style={{ fontSize: '12px', margin: 0, color: 'var(--text-secondary)', lineHeight: 1.4 }}>
+                    Competitor listings map active prior systems, and GAP nodes mark open product white spaces.
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>

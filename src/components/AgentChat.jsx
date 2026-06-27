@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, Sparkles, AlertTriangle, User, ShieldAlert, Zap, Loader } from 'lucide-react';
 import { askAgent } from '../utils/gemini';
+import { formatMarkdown } from '../utils/markdown';
 
 const getMockResponse = (text, persona, currentIdea, documents) => {
   const query = text.toLowerCase();
@@ -160,7 +161,7 @@ export default function AgentChat({
               <span className="bubble-sender">
                 {msg.sender === 'user' ? 'Founder' : (chatPersona === 'copilot' ? 'ClaimScout Co-Pilot' : 'VC Critic')}
               </span>
-              <div className="chat-bubble-text">{msg.text}</div>
+              <div className="chat-bubble-text">{formatMarkdown(msg.text)}</div>
             </div>
           ))}
           {isLoading && (
