@@ -55,7 +55,9 @@ export default function AgentChat({
     const textarea = textareaRef.current;
     if (textarea) {
       textarea.style.height = 'auto';
-      textarea.style.height = `${Math.min(textarea.scrollHeight, 250)}px`;
+      const targetHeight = textarea.scrollHeight;
+      textarea.style.height = `${Math.min(targetHeight, 400)}px`;
+      textarea.style.overflowY = targetHeight > 400 ? 'auto' : 'hidden';
     }
   }, [inputText]);
 
@@ -302,15 +304,11 @@ export default function AgentChat({
                 onKeyDown={handleKeyDown}
                 placeholder={isListening ? "Listening... Speak now..." : `Ask ${chatPersona === 'copilot' ? 'Co-Pilot' : 'VC Critic'}...`}
                 disabled={isLoading}
-                rows={1}
+                rows={2}
               />
               
               <div className="chat-input-actions">
-                <span className="chat-input-hint">
-                  {inputText.includes('\n') || inputText.length > 50 ? "Enter to send, Shift+Enter for newline" : ""}
-                </span>
-                
-                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginLeft: 'auto' }}>
                   <button
                     type="button"
                     onClick={toggleListening}
