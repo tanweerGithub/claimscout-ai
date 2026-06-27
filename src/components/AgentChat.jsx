@@ -47,6 +47,16 @@ export default function AgentChat({
   const [isListening, setIsListening] = useState(false);
   const messagesEndRef = useRef(null);
   const recognitionRef = useRef(null);
+  const textareaRef = useRef(null);
+
+  // Auto-resize textarea height as text content changes
+  useEffect(() => {
+    const textarea = textareaRef.current;
+    if (textarea) {
+      textarea.style.height = 'auto';
+      textarea.style.height = `${Math.min(textarea.scrollHeight, 120)}px`;
+    }
+  }, [inputText]);
 
   // Initialize Speech Recognition
   useEffect(() => {
