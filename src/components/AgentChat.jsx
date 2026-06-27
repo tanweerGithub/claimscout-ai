@@ -181,25 +181,30 @@ export default function AgentChat({
   };
 
   return (
-    <div className="agent-chat panel-right panel">
-      {/* Header with dual toggles */}
-      <div className="panel-header" style={{ flexDirection: 'column', gap: '10px', alignItems: 'stretch' }}>
-        <h2>Agent Intelligence</h2>
-        <div className="chat-persona-tabs">
-          <button 
-            className={`persona-tab copilot ${chatPersona === 'copilot' ? 'active' : ''}`}
-            onClick={() => setChatPersona('copilot')}
-          >
-            <Zap size={13} />
-            Co-Pilot
-          </button>
-          <button 
-            className={`persona-tab griller ${chatPersona === 'griller' ? 'active' : ''}`}
-            onClick={() => setChatPersona('griller')}
-          >
-            <ShieldAlert size={13} />
-            VC Critic
-          </button>
+    <div className="panel panel-right">
+      <div className="panel-header">
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Zap size={16} className={chatPersona === 'copilot' ? 'text-blue' : 'text-rose'} />
+            <h2>{chatPersona === 'copilot' ? 'Co-Pilot Partner' : 'VC Critic Auditor'}</h2>
+          </div>
+          
+          <div style={{ display: 'flex', gap: '4px', background: 'rgba(0,0,0,0.2)', padding: '2px', borderRadius: '6px' }}>
+            <button 
+              className={`btn btn-persona ${chatPersona === 'copilot' ? 'active' : ''}`}
+              onClick={() => setChatPersona('copilot')}
+              style={{ fontSize: '11px', padding: '4px 8px' }}
+            >
+              Co-Pilot
+            </button>
+            <button 
+              className={`btn btn-persona ${chatPersona === 'griller' ? 'active' : ''}`}
+              onClick={() => setChatPersona('griller')}
+              style={{ fontSize: '11px', padding: '4px 8px' }}
+            >
+              VC Critic
+            </button>
+          </div>
         </div>
       </div>
 
@@ -246,50 +251,74 @@ export default function AgentChat({
             ))}
           </div>
 
-          <form onSubmit={handleFormSubmit} className="chat-input-area">
-            <input 
-              type="text" 
-              className="chat-input"
-              value={inputText}
-              onChange={(e) => setInputText(e.target.value)}
-              placeholder={isListening ? "Listening... Speak now..." : `Ask ${chatPersona === 'copilot' ? 'Co-Pilot' : 'VC Critic'}...`}
-              disabled={isLoading}
-            />
-            
-            <button
-              type="button"
-              onClick={toggleListening}
-              className={`chat-mic-btn ${isListening ? 'listening' : ''}`}
-              style={{
-                background: 'none',
-                border: 'none',
-                color: isListening ? 'var(--accent-rose)' : 'var(--text-secondary)',
-                cursor: 'pointer',
-                padding: '6px 8px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                marginRight: '2px'
-              }}
-              title={isListening ? "Stop Listening" : "Voice Input (Dictate)"}
-            >
-              {isListening ? (
-                <div className="pulse-mic" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Mic size={16} />
-                  <span className="pulse-ring"></span>
-                </div>
-              ) : (
-                <Mic size={16} />
-              )}
-            </button>
+          <form onSubmit={handleFormSubmit} style={{ borderTop: '1px solid var(--panel-border)', paddingTop: '16px' }}>
+            <div className={`chat-input-container ${chatPersona === 'copilot' ? 'copilot-focus' : 'griller-focus'}`}>
+              <textarea
+                ref={textareaRef}
+                className="chat-textarea"
+                value={inputText}
+                onChange={(e) => setInputText(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder={isListening ? "Listening... Speak now..." : `Ask ${chatPersona === 'copilot' ? 'Co-Pilot' : 'VC Critic'}...`}
+                disabled={isLoading}
+                rows={1}
+              />
+              
+              <div className="chat-input-actions">
+                <span className="chat-input-hint">
+                  {inputText.includes('\n') || inputText.length > 50 ? "Enter to send, Shift+Enter for newline" : ""}
+                </span>
+                
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                  <button
+                    type="button"
+                    onClick={toggleListening}
+                    className={`chat-mic-btn ${isListening ? 'listening' : ''}`}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      color: isListening ? 'var(--accent-rose)' : 'var(--text-secondary)',
+                      cursor: 'pointer',
+                      padding: '4px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}
+                    title={isListening ? "Stop Listening" : "Voice Input (Dictate)"}
+                  >
+                    {isListening ? (
+                      <div className="pulse-mic" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Mic size={15} />
+                        <span className="pulse-ring"></span>
+                      </div>
+                    ) : (
+                      <Mic size={15} />
+                    )}
+                  </button>
 
-            <button 
-              type="submit" 
-              className="chat-send-btn" 
-              disabled={isLoading || !inputText.trim()}
-            >
-              <Send size={15} />
-            </button>
+                  <button 
+                    type="submit" 
+                    className="chat-send-btn-modern" 
+                    disabled={isLoading || !inputText.trim()}
+                    style={{
+                      background: inputText.trim() ? (chatPersona === 'copilot' ? 'var(--accent-blue)' : 'var(--accent-rose)') : 'rgba(255,255,255,0.04)',
+                      color: inputText.trim() ? '#fff' : 'var(--text-muted)',
+                      border: 'none',
+                      width: '26px',
+                      height: '26px',
+                      borderRadius: '50%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      cursor: inputText.trim() ? 'pointer' : 'default',
+                      transition: 'all 0.2s ease'
+                    }}
+                  >
+                    <Send size={11} />
+                  </button>
+                </div>
+              </div>
+            </div>
           </form>
         </div>
       </div>
