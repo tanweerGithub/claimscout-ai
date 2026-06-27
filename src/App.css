@@ -1377,3 +1377,41 @@ input, textarea, button {
   color: var(--accent-amber);
   font-weight: 600;
 }
+
+/* Voice Dictation Mic Button Animations */
+.chat-mic-btn {
+  transition: all 0.3s ease;
+}
+
+.chat-mic-btn.listening {
+  color: var(--accent-rose) !important;
+}
+
+.pulse-mic {
+  position: relative;
+  display: inline-flex;
+}
+
+.pulse-ring {
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  right: -4px;
+  bottom: -4px;
+  border: 1px solid var(--accent-rose);
+  border-radius: 50%;
+  animation: mic-pulse 1.2s infinite ease-out;
+  opacity: 0;
+  pointer-events: none;
+}
+
+@keyframes mic-pulse {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}

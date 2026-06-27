@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Sparkles, AlertTriangle, User, ShieldAlert, Zap, Loader } from 'lucide-react';
+import { Send, Sparkles, AlertTriangle, User, ShieldAlert, Zap, Loader, Mic } from 'lucide-react';
 import { askAgent } from '../utils/gemini';
 import { formatMarkdown } from '../utils/markdown';
 
@@ -44,7 +44,60 @@ export default function AgentChat({
 }) {
   const [inputText, setInputText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isListening, setIsListening] = useState(false);
   const messagesEndRef = useRef(null);
+  const recognitionRef = useRef(null);
+
+  // Initialize Speech Recognition
+  useEffect(() => {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (SpeechRecognition) {
+      const rec = new SpeechRecognition();
+      rec.continuous = false; // Stops listening when user pauses
+      rec.interimResults = false;
+      rec.lang = 'en-US';
+
+      rec.onstart = () => {
+        setIsListening(true);
+      };
+
+      rec.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        setInputText(prev => {
+          const space = prev.trim() ? ' ' : '';
+          return prev + space + transcript;
+        });
+      };
+
+      rec.onerror = (event) => {
+        console.error("Speech recognition error:", event.error);
+        setIsListening(false);
+      };
+
+      rec.onend = () => {
+        setIsListening(false);
+      };
+
+      recognitionRef.current = rec;
+    }
+  }, []);
+
+  const toggleListening = () => {
+    if (!recognitionRef.current) {
+      alert("Speech recognition is not supported in this browser. Try Chrome or Safari.");
+      return;
+    }
+
+    if (isListening) {
+      recognitionRef.current.stop();
+    } else {
+      try {
+        recognitionRef.current.start();
+      } catch (err) {
+        console.error("Recognition start error:", err);
+      }
+    }
+  };
 
   // Auto-scroll messages list
   useEffect(() => {
@@ -199,9 +252,37 @@ export default function AgentChat({
               className="chat-input"
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
-              placeholder={`Ask ${chatPersona === 'copilot' ? 'Co-Pilot' : 'VC Critic'}...`}
+              placeholder={isListening ? "Listening... Speak now..." : `Ask ${chatPersona === 'copilot' ? 'Co-Pilot' : 'VC Critic'}...`}
               disabled={isLoading}
             />
+            
+            <button
+              type="button"
+              onClick={toggleListening}
+              className={`chat-mic-btn ${isListening ? 'listening' : ''}`}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: isListening ? 'var(--accent-rose)' : 'var(--text-secondary)',
+                cursor: 'pointer',
+                padding: '6px 8px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginRight: '2px'
+              }}
+              title={isListening ? "Stop Listening" : "Voice Input (Dictate)"}
+            >
+              {isListening ? (
+                <div className="pulse-mic" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Mic size={16} />
+                  <span className="pulse-ring"></span>
+                </div>
+              ) : (
+                <Mic size={16} />
+              )}
+            </button>
+
             <button 
               type="submit" 
               className="chat-send-btn" 
