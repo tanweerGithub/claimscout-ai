@@ -163,6 +163,13 @@ export default function AgentChat({
     handleSendMessage();
   };
 
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleFormSubmit(e);
+    }
+  };
+
   // Dynamically change suggestions based on active persona
   const getSuggestions = () => {
     if (chatPersona === 'griller') {

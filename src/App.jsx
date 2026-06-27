@@ -413,15 +413,17 @@ function App() {
         </div>
 
         {/* Right pane: Chat Intelligence */}
-        <AgentChat 
-          messages={messages}
-          setMessages={setMessages}
-          documents={documents}
-          currentIdea={currentIdea}
-          apiKey={apiKey}
-          chatPersona={chatPersona}
-          setChatPersona={setChatPersona}
-        />
+        <ErrorBoundary name="Agent Chat Interface">
+          <AgentChat 
+            messages={messages}
+            setMessages={setMessages}
+            documents={documents}
+            currentIdea={currentIdea}
+            apiKey={apiKey}
+            chatPersona={chatPersona}
+            setChatPersona={setChatPersona}
+          />
+        </ErrorBoundary>
       </main>
 
       {/* Settings Modal (API Key) */}
