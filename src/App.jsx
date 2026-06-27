@@ -107,14 +107,32 @@ function App() {
     setIsDataSynced(true);
   };
 
-  // Chat message logs
-  const [messages, setMessages] = useState([
+  // Decoupled chat message logs for different personas
+  const [copilotMessages, setCopilotMessages] = useState([
     { 
-      id: 'intro', 
+      id: 'copilot_intro', 
       sender: 'agent', 
-      text: "Hello! I am ClaimScout Co-Pilot. I've analyzed your reference library for Project AeroShield. We have 2 competitor profiles and 2 patents loaded. How can I help you design your system or bypass competitor claims?" 
+      text: "Hello! I am ClaimScout Co-Pilot. I've analyzed your reference library and I'm ready to help you brainstorm technical workarounds, design system architectures, and draft PRD specs. What should we build today?" 
     }
   ]);
+
+  const [criticMessages, setCriticMessages] = useState([
+    { 
+      id: 'critic_intro', 
+      sender: 'agent', 
+      text: "I am the VC Critic. I have audited your patent landscape and competitor specifications. I'm here to grill your product model and call out technical risks, claim overlaps, or weaknesses in your defensibility." 
+    }
+  ]);
+
+  const appendSystemMessage = (text) => {
+    const sysMsg = {
+      id: 'sys_' + Date.now(),
+      sender: 'agent',
+      text
+    };
+    setCopilotMessages(prev => [...prev, sysMsg]);
+    setCriticMessages(prev => [...prev, sysMsg]);
+  };
 
   // If documents or ideas change, notify user that reports are out of sync and need regeneration
   useEffect(() => {
@@ -157,14 +175,7 @@ function App() {
           setPrd(newPrd);
           setIsDataSynced(true);
           
-          setMessages(prev => [
-            ...prev, 
-            {
-              id: 'sync_sim_' + Date.now(),
-              sender: 'agent',
-              text: `[SYSTEM: WORKSPACE REFRESHED (DEMO MODE)] I have re-analyzed your workspace using the local simulation engine. The Tech Landscape graph, SWOT, Risks, Slides, and PRD are successfully updated. Enter a Gemini API Key in Settings for live LLM analysis.`
-            }
-          ]);
+          appendSystemMessage(`[SYSTEM: WORKSPACE REFRESHED (DEMO MODE)] I have re-analyzed your workspace using the local simulation engine. The Tech Landscape graph, SWOT, Risks, Slides, and PRD are successfully updated. Enter a Gemini API Key in Settings for live LLM analysis.`);
         } catch (e) {
           console.error(e);
           setToast({
@@ -195,14 +206,7 @@ function App() {
       setIsDataSynced(true);
       
       // Notify chat
-      setMessages(prev => [
-        ...prev, 
-        {
-          id: 'sync_' + Date.now(),
-          sender: 'agent',
-          text: `[SYSTEM: WORKSPACE REFRESHED] I have re-analyzed your workspace using the new specifications. The Tech Landscape, Patent Claims analysis, Slides, SWOT, and PRD have been updated successfully. Toggle the VC Critic to review risks.`
-        }
-      ]);
+      appendSystemMessage(`[SYSTEM: WORKSPACE REFRESHED] I have re-analyzed your workspace using the new specifications. The Tech Landscape, Patent Claims analysis, Slides, SWOT, and PRD have been updated successfully.`);
     } catch (error) {
       console.error(error);
       let errorTitle = "Synthesis Failed";
@@ -235,28 +239,7 @@ function App() {
     }
   };
 
-  // Change chat logs when persona changes
-  useEffect(() => {
-    if (chatPersona === 'griller') {
-      setMessages(prev => [
-        ...prev,
-        {
-          id: 'grill_intro_' + Date.now(),
-          sender: 'agent',
-          text: `[SYSTEM: VC CRITIC ENGAGED] I am ready. I've audited the IP landscape. Let's talk about why your project might fail. Ask me about patent overlaps or competitor advantages, or select a suggestion below.`
-        }
-      ]);
-    } else {
-      setMessages(prev => [
-        ...prev,
-        {
-          id: 'copilot_intro_' + Date.now(),
-          sender: 'agent',
-          text: `[SYSTEM: CO-PILOT ENGAGED] Back to brainstorming mode. Ask me how to bypass specific patent claims, design software clusters, or draft presentation notes.`
-        }
-      ]);
-    }
-  }, [chatPersona]);
+
 
   return (
     <div id="root">
@@ -415,8 +398,8 @@ function App() {
         {/* Right pane: Chat Intelligence */}
         <ErrorBoundary name="Agent Chat Interface">
           <AgentChat 
-            messages={messages}
-            setMessages={setMessages}
+            messages={chatPersona === 'copilot' ? copilotMessages : criticMessages}
+            setMessages={chatPersona === 'copilot' ? setCopilotMessages : setCriticMessages}
             documents={documents}
             currentIdea={currentIdea}
             apiKey={apiKey}
