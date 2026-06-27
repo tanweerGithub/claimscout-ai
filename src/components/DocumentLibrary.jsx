@@ -34,25 +34,27 @@ export default function DocumentLibrary({
     });
   };
 
-  // Simulates uploading a local file (reading it as text)
+  // Simulates uploading local files (reading as text)
   const handleFileUpload = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+    const files = Array.from(e.target.files);
+    if (files.length === 0) return;
 
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const newDoc = {
-        id: 'uploaded_' + Date.now(),
-        type: file.name.endsWith('.pdf') ? 'patent' : 'competitor',
-        title: file.name.replace(/\.[^/.]+$/, ""),
-        author: "Uploaded File",
-        year: new Date().getFullYear().toString(),
-        summary: event.target.result.slice(0, 150) + "...",
-        content: event.target.result
+    files.forEach((file, index) => {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const newDoc = {
+          id: `uploaded_${Date.now()}_${index}`,
+          type: file.name.endsWith('.pdf') ? 'patent' : 'competitor',
+          title: file.name.replace(/\.[^/.]+$/, ""),
+          author: "Uploaded File",
+          year: new Date().getFullYear().toString(),
+          summary: event.target.result.slice(0, 150) + "...",
+          content: event.target.result
+        };
+        setDocuments(prev => [...prev, newDoc]);
       };
-      setDocuments(prev => [...prev, newDoc]);
-    };
-    reader.readAsText(file);
+      reader.readAsText(file);
+    });
   };
 
   // Agentic search/importing: Queries USPTO/arXiv using Gemini API
@@ -153,6 +155,8 @@ export default function DocumentLibrary({
     setDocuments(prev => prev.filter(doc => doc.id !== id));
   };
 
+  const hasUnsavedChanges = ideaTitle !== currentIdea.title || ideaDesc !== currentIdea.description;
+
   return (
     <div className="panel panel-left">
       <div className="panel-header">
@@ -163,22 +167,29 @@ export default function DocumentLibrary({
         {/* Startup Idea Input */}
         <form onSubmit={handleUpdateIdea} style={{ marginBottom: '24px' }}>
           <div className="input-group">
-            <label htmlFor="idea-title">My Startup / Idea Title</label>
+            <label htmlFor="idea-title" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span>My Startup / Idea Title</span>
+              {ideaTitle !== currentIdea.title && <span className="unsaved-hint">* Unsaved</span>}
+            </label>
             <input 
               id="idea-title"
               type="text" 
-              className="input-text"
+              className={`input-text ${ideaTitle !== currentIdea.title ? 'unsaved-input' : ''}`}
               value={ideaTitle}
               onChange={(e) => setIdeaTitle(e.target.value)}
               placeholder="e.g. Project AeroShield" 
               required
             />
           </div>
+          
           <div className="input-group" style={{ marginBottom: '10px' }}>
-            <label htmlFor="idea-desc">Core Technical Summary</label>
+            <label htmlFor="idea-desc" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span>Core Technical Summary</span>
+              {ideaDesc !== currentIdea.description && <span className="unsaved-hint">* Unsaved</span>}
+            </label>
             <textarea 
               id="idea-desc"
-              className="textarea-custom"
+              className={`textarea-custom ${ideaDesc !== currentIdea.description ? 'unsaved-input' : ''}`}
               value={ideaDesc}
               onChange={(e) => setIdeaDesc(e.target.value)}
               placeholder="Explain how it works, what sensors/algorithms are used, and the target application."
@@ -188,11 +199,20 @@ export default function DocumentLibrary({
           
           <button 
             type="submit" 
-            className="btn btn-primary"
-            style={{ width: '100%', justifyContent: 'center' }}
-            disabled={ideaTitle === currentIdea.title && ideaDesc === currentIdea.description}
+            className="btn"
+            style={{ 
+              width: '100%', 
+              justifyContent: 'center',
+              background: hasUnsavedChanges ? 'var(--accent-amber)' : 'rgba(255,255,255,0.03)',
+              borderColor: hasUnsavedChanges ? 'var(--accent-amber)' : 'rgba(255,255,255,0.08)',
+              color: hasUnsavedChanges ? '#070a13' : 'var(--text-muted)',
+              fontWeight: hasUnsavedChanges ? '700' : '500',
+              cursor: hasUnsavedChanges ? 'pointer' : 'default',
+              boxShadow: hasUnsavedChanges ? '0 4px 12px rgba(245, 158, 11, 0.25)' : 'none'
+            }}
+            disabled={!hasUnsavedChanges}
           >
-            Save & Update Idea
+            {hasUnsavedChanges ? '⚠️ Save Unsaved Changes' : 'Idea Saved & Up to Date'}
           </button>
         </form>
 
@@ -202,10 +222,11 @@ export default function DocumentLibrary({
         <div style={{ marginBottom: '12px' }}>
           <label className="upload-card" style={{ display: 'block' }}>
             <FileText size={20} style={{ display: 'block', margin: '0 auto 8px' }} />
-            <p>Upload Text/PDF Reference</p>
+            <p>Upload Text/PDF Reference(s)</p>
             <input 
               type="file" 
               accept=".txt,.md,.pdf" 
+              multiple
               onChange={handleFileUpload} 
               style={{ display: 'none' }} 
             />
@@ -246,7 +267,29 @@ export default function DocumentLibrary({
           </div>
         </form>
 
-        <div className="doc-section-title">Reference Library ({documents.length})</div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '20px 0 10px 0' }}>
+          <div className="doc-section-title" style={{ margin: 0 }}>Reference Library ({documents.length})</div>
+          {documents.length > 0 && (
+            <button 
+              type="button"
+              className="btn" 
+              onClick={() => setDocuments([])}
+              style={{ 
+                padding: '2px 8px', 
+                fontSize: '10.5px', 
+                height: 'auto', 
+                background: 'none', 
+                border: '1px solid rgba(244, 63, 94, 0.3)', 
+                color: 'var(--accent-rose)', 
+                boxShadow: 'none',
+                cursor: 'pointer'
+              }}
+              title="Remove all documents from workspace"
+            >
+              Clear All
+            </button>
+          )}
+        </div>
 
         {/* Document List */}
         <div className="doc-list">

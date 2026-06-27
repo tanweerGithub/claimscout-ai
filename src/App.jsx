@@ -227,6 +227,7 @@ function App() {
         title: errorTitle,
         message: errorMsg,
         diagnostic: diagnostic,
+        rawError: error.message || error.toString(),
         type: "error"
       });
     } finally {
@@ -507,11 +508,38 @@ function App() {
                   fontSize: '12.5px',
                   color: 'var(--text-muted)',
                   lineHeight: 1.6,
-                  whiteSpace: 'pre-line'
+                  whiteSpace: 'pre-line',
+                  marginBottom: toast.rawError ? '12px' : '0'
                 }}>
                   <strong style={{ color: 'var(--text-secondary)', display: 'block', marginBottom: '4px' }}>Troubleshooting Diagnostics:</strong>
                   {toast.diagnostic}
                 </div>
+              )}
+              {toast.rawError && (
+                <details style={{ cursor: 'pointer', outline: 'none' }}>
+                  <summary style={{ fontSize: '12px', color: 'var(--accent-cyan)', fontWeight: '600', userSelect: 'none', padding: '2px 0' }}>
+                    Show Raw Error Details
+                  </summary>
+                  <pre style={{
+                    marginTop: '8px',
+                    padding: '8px 12px',
+                    background: 'rgba(0,0,0,0.35)',
+                    border: '1px solid rgba(255,255,255,0.05)',
+                    borderRadius: '8px',
+                    fontSize: '11px',
+                    color: 'var(--accent-rose)',
+                    textAlign: 'left',
+                    overflowX: 'auto',
+                    maxWidth: '100%',
+                    fontFamily: 'var(--font-mono)',
+                    whiteSpace: 'pre-wrap',
+                    wordBreak: 'break-all',
+                    maxHeight: '120px',
+                    overflowY: 'auto'
+                  }}>
+                    {toast.rawError}
+                  </pre>
+                </details>
               )}
             </div>
 

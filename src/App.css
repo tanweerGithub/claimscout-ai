@@ -84,8 +84,7 @@ input, textarea, button {
 /* Header Component */
 .app-header {
   height: var(--header-height);
-  background: rgba(11, 17, 32, 0.8);
-  backdrop-filter: blur(12px);
+  background: rgba(11, 17, 32, 0.95);
   border-bottom: 1px solid var(--panel-border);
   display: flex;
   align-items: center;
@@ -145,8 +144,7 @@ input, textarea, button {
   flex-direction: column;
   height: 100%;
   overflow: hidden;
-  background: var(--panel-bg);
-  backdrop-filter: blur(8px);
+  background: rgba(13, 20, 38, 0.85);
 }
 
 .panel-left {
@@ -1375,4 +1373,15 @@ input, textarea, button {
   50% {
     opacity: 1;
   }
+}
+
+.unsaved-input {
+  border-color: rgba(245, 158, 11, 0.45) !important;
+  box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.15) !important;
+}
+
+.unsaved-hint {
+  font-size: 11px;
+  color: var(--accent-amber);
+  font-weight: 600;
 }
