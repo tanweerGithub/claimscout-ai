@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Sparkles, AlertTriangle, User, ShieldAlert, Zap, Loader, Mic } from 'lucide-react';
+import { Send, Sparkles, AlertTriangle, User, ShieldAlert, Zap, Loader, Mic, ChevronDown, ChevronRight } from 'lucide-react';
 import { askAgent } from '../utils/gemini';
 import { formatMarkdown } from '../utils/markdown';
 
@@ -45,6 +45,7 @@ export default function AgentChat({
   const [inputText, setInputText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isListening, setIsListening] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(false);
   const messagesEndRef = useRef(null);
   const recognitionRef = useRef(null);
   const textareaRef = useRef(null);
@@ -54,7 +55,7 @@ export default function AgentChat({
     const textarea = textareaRef.current;
     if (textarea) {
       textarea.style.height = 'auto';
-      textarea.style.height = `${Math.min(textarea.scrollHeight, 120)}px`;
+      textarea.style.height = `${Math.min(textarea.scrollHeight, 250)}px`;
     }
   }, [inputText]);
 
@@ -255,18 +256,41 @@ export default function AgentChat({
 
         {/* Input and suggestions */}
         <div style={{ marginTop: '12px' }}>
-          <div className="suggested-prompts">
-            {getSuggestions().map((suggestion, idx) => (
-              <button 
-                key={idx} 
-                className="suggested-prompt-btn"
-                onClick={() => handleSendMessage(suggestion.text)}
-                disabled={isLoading}
-              >
-                {suggestion.label}
-              </button>
-            ))}
+          <div 
+            onClick={() => setShowSuggestions(!showSuggestions)} 
+            style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '6px', 
+              cursor: 'pointer', 
+              marginBottom: '8px', 
+              userSelect: 'none',
+              width: 'fit-content'
+            }}
+          >
+            {showSuggestions ? <ChevronDown size={11} className="text-muted" /> : <ChevronRight size={11} className="text-muted" />}
+            <span style={{ fontSize: '10px', fontWeight: '700', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+              Suggested Queries
+            </span>
           </div>
+
+          {showSuggestions && (
+            <div className="suggested-prompts" style={{ marginBottom: '8px' }}>
+              {getSuggestions().map((suggestion, idx) => (
+                <button 
+                  key={idx} 
+                  className="suggested-prompt-btn"
+                  onClick={() => {
+                    handleSendMessage(suggestion.text);
+                    setShowSuggestions(false);
+                  }}
+                  disabled={isLoading}
+                >
+                  {suggestion.label}
+                </button>
+              ))}
+            </div>
+          )}
 
           <form onSubmit={handleFormSubmit} style={{ borderTop: '1px solid var(--panel-border)', paddingTop: '16px' }}>
             <div className={`chat-input-container ${chatPersona === 'copilot' ? 'copilot-focus' : 'griller-focus'}`}>

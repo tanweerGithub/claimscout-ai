@@ -1225,7 +1225,8 @@ input, textarea, button {
   font-size: 13.5px;
   color: var(--text-primary);
   min-height: 24px;
-  max-height: 120px;
+  max-height: 250px;
+  overflow-y: auto;
   line-height: 1.5;
   padding: 2px 0;
 }
