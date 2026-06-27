@@ -497,91 +497,105 @@ function App() {
       )}
 
       {/* Toast Diagnostics Overlay */}
-      {toast && (
-        <div className="modal-overlay" style={{ zIndex: 1100 }} onClick={() => setToast(null)}>
-          <div className="modal-content" style={{ maxWidth: '500px', borderLeft: '4px solid var(--accent-rose)' }} onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <span style={{ fontSize: '20px' }}>⚠️</span>
-                <h2 style={{ margin: 0, fontSize: '16px', color: 'var(--text-primary)', fontWeight: '600' }}>{toast.title}</h2>
-              </div>
-              <button className="modal-close" onClick={() => setToast(null)}>
-                <X size={18} />
-              </button>
-            </div>
-            
-            <div style={{ padding: '4px 0 16px 0' }}>
-              <p style={{ fontSize: '13.5px', color: 'var(--text-secondary)', lineHeight: 1.5, margin: '0 0 12px 0' }}>
-                {toast.message}
-              </p>
-              {toast.diagnostic && (
-                <div style={{
-                  background: 'rgba(0,0,0,0.2)',
-                  border: '1px solid rgba(255, 255, 255, 0.05)',
-                  padding: '12px',
-                  borderRadius: '8px',
-                  fontSize: '12.5px',
-                  color: 'var(--text-muted)',
-                  lineHeight: 1.6,
-                  whiteSpace: 'pre-line',
-                  marginBottom: toast.rawError ? '12px' : '0'
-                }}>
-                  <strong style={{ color: 'var(--text-secondary)', display: 'block', marginBottom: '4px' }}>Troubleshooting Diagnostics:</strong>
-                  {toast.diagnostic}
-                </div>
-              )}
-              {toast.rawError && (
-                <details style={{ cursor: 'pointer', outline: 'none' }}>
-                  <summary style={{ fontSize: '12px', color: 'var(--accent-cyan)', fontWeight: '600', userSelect: 'none', padding: '2px 0' }}>
-                    Show Raw Error Details
-                  </summary>
-                  <pre style={{
-                    marginTop: '8px',
-                    padding: '8px 12px',
-                    background: 'rgba(0,0,0,0.35)',
-                    border: '1px solid rgba(255,255,255,0.05)',
-                    borderRadius: '8px',
-                    fontSize: '11px',
-                    color: 'var(--accent-rose)',
-                    textAlign: 'left',
-                    overflowX: 'auto',
-                    maxWidth: '100%',
-                    fontFamily: 'var(--font-mono)',
-                    whiteSpace: 'pre-wrap',
-                    wordBreak: 'break-all',
-                    maxHeight: '120px',
-                    overflowY: 'auto'
-                  }}>
-                    {toast.rawError}
-                  </pre>
-                </details>
-              )}
-            </div>
+      {toast && (() => {
+        const borderColors = {
+          success: 'var(--accent-emerald)',
+          info: 'var(--accent-cyan)',
+          error: 'var(--accent-rose)'
+        };
+        const icons = {
+          success: '✅',
+          info: '💡',
+          error: '⚠️'
+        };
+        const borderColor = borderColors[toast.type] || 'var(--panel-border)';
+        const icon = icons[toast.type] || 'ℹ️';
 
-            <div style={{ display: 'flex', gap: '10px' }}>
-              <button className="btn btn-primary" style={{ flex: 1, justifyContent: 'center' }} onClick={() => setToast(null)}>
-                Acknowledge
-              </button>
-              {apiKey && (
-                <button 
-                  className="btn" 
-                  style={{ borderColor: 'var(--accent-rose)', color: 'var(--accent-rose)' }} 
-                  onClick={() => {
-                    handleClearKey();
-                    setToast(null);
-                    // Run simulated regenerate after a short delay
-                    setTimeout(() => {
-                      handleRegenerateAll();
-                    }, 100);
-                  }}
-                >
-                  Clear Key & Use Demo Mode
+        return (
+          <div className="modal-overlay" style={{ zIndex: 1100 }} onClick={() => setToast(null)}>
+            <div className="modal-content" style={{ maxWidth: '500px', borderLeft: `4px solid ${borderColor}` }} onClick={(e) => e.stopPropagation()}>
+              <div className="modal-header">
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <span style={{ fontSize: '18px' }}>{icon}</span>
+                  <h2 style={{ margin: 0, fontSize: '16px', color: 'var(--text-primary)', fontWeight: '600' }}>{toast.title}</h2>
+                </div>
+                <button className="modal-close" onClick={() => setToast(null)}>
+                  <X size={18} />
                 </button>
-              )}
+              </div>
+              
+              <div style={{ padding: '4px 0 16px 0' }}>
+                <p style={{ fontSize: '13.5px', color: 'var(--text-secondary)', lineHeight: 1.5, margin: '0 0 12px 0' }}>
+                  {toast.message}
+                </p>
+                {toast.diagnostic && (
+                  <div style={{
+                    background: 'rgba(0,0,0,0.2)',
+                    border: '1px solid rgba(255, 255, 255, 0.05)',
+                    padding: '12px',
+                    borderRadius: '8px',
+                    fontSize: '12.5px',
+                    color: 'var(--text-muted)',
+                    lineHeight: 1.6,
+                    whiteSpace: 'pre-line',
+                    marginBottom: toast.rawError ? '12px' : '0'
+                  }}>
+                    <strong style={{ color: 'var(--text-secondary)', display: 'block', marginBottom: '4px' }}>Troubleshooting Diagnostics:</strong>
+                    {toast.diagnostic}
+                  </div>
+                )}
+                {toast.rawError && (
+                  <details style={{ cursor: 'pointer', outline: 'none' }}>
+                    <summary style={{ fontSize: '12px', color: 'var(--accent-cyan)', fontWeight: '600', userSelect: 'none', padding: '2px 0' }}>
+                      Show Raw Error Details
+                    </summary>
+                    <pre style={{
+                      marginTop: '8px',
+                      padding: '8px 12px',
+                      background: 'rgba(0,0,0,0.35)',
+                      border: '1px solid rgba(255,255,255,0.05)',
+                      borderRadius: '8px',
+                      fontSize: '11px',
+                      color: 'var(--accent-rose)',
+                      textAlign: 'left',
+                      overflowX: 'auto',
+                      maxWidth: '100%',
+                      fontFamily: 'var(--font-mono)',
+                      whiteSpace: 'pre-wrap',
+                      wordBreak: 'break-all',
+                      maxHeight: '120px',
+                      overflowY: 'auto'
+                    }}>
+                      {toast.rawError}
+                    </pre>
+                  </details>
+                )}
+              </div>
+
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <button className="btn btn-primary" style={{ flex: 1, justifyContent: 'center' }} onClick={() => setToast(null)}>
+                  Acknowledge
+                </button>
+                {toast.type === 'error' && apiKey && (
+                  <button 
+                    className="btn" 
+                    style={{ borderColor: 'var(--accent-rose)', color: 'var(--accent-rose)', cursor: 'pointer' }} 
+                    onClick={() => {
+                      handleClearKey();
+                      setToast(null);
+                      setTimeout(() => {
+                        handleRegenerateAll();
+                      }, 100);
+                    }}
+                  >
+                    Clear Key & Use Demo Mode
+                  </button>
+                )}
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
     </div>
   );
 }
