@@ -34,7 +34,7 @@ function parseGeminiResponse(data, responseJson) {
 export async function callGemini(apiKey, contents, responseJson = false, systemInstruction = null) {
   // 1. Try Vercel Serverless Function Proxy to bypass browser CORS preflight blocks
   try {
-    const proxyResponse = await fetch("/api/gemini", {
+    const proxyResponse = await fetch("/api/proxy", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
