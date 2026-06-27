@@ -59,6 +59,53 @@ export default function LandscapeMap({ landscapeData }) {
             </filter>
           </defs>
 
+          {/* Axis Guidelines */}
+          <g className="map-axis-lines" opacity="0.25">
+            {/* Y Axis line */}
+            <line x1="80" y1="40" x2="80" y2="430" stroke="var(--text-secondary)" strokeWidth="1.5" />
+            <path d="M76 50 L80 40 L84 50 Z" fill="var(--text-secondary)" />
+            
+            {/* X Axis line */}
+            <line x1="80" y1="430" x2="760" y2="430" stroke="var(--text-secondary)" strokeWidth="1.5" />
+            <path d="M750 426 L760 430 L750 434 Z" fill="var(--text-secondary)" />
+          </g>
+
+          {/* Axis Labels */}
+          <g className="map-axis-labels" pointerEvents="none" style={{ userSelect: 'none' }}>
+            {/* X Axis Title */}
+            <text 
+              x="420" 
+              y="450" 
+              textAnchor="middle" 
+              style={{
+                fontSize: '9.5px',
+                fontWeight: '600',
+                fill: 'var(--text-muted)',
+                letterSpacing: '1px',
+                textTransform: 'uppercase'
+              }}
+            >
+              Technical Focus: Hardware / Architecture (Left) ↔ Software / Algorithm (Right)
+            </text>
+
+            {/* Y Axis Title */}
+            <text 
+              x="52" 
+              y="235" 
+              textAnchor="middle" 
+              style={{
+                fontSize: '9.5px',
+                fontWeight: '600',
+                fill: 'var(--text-muted)',
+                letterSpacing: '1px',
+                textTransform: 'uppercase'
+              }}
+              transform="rotate(-90, 52, 235)"
+            >
+              Market Focus: Consumer / Product (Bottom) ↔ Enterprise / Industrial (Top)
+            </text>
+          </g>
+
           {/* Draw Links/Edges */}
           {safeLinks.map((link, idx) => {
             const sourceNode = safeNodes.find(n => n.id === link.source);
