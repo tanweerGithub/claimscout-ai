@@ -2,8 +2,8 @@ import React from 'react';
 import { Shield, Sparkles, HelpCircle, ThumbsUp, ThumbsDown, Eye, AlertTriangle } from 'lucide-react';
 
 export default function SwotCanvas({ swotData }) {
-  // Destructure
-  const { strengths = [], weaknesses = [], opportunities = [], threats = [], feasibility = [] } = swotData;
+  // Destructure with default empty object to avoid crashes if swotData is null/undefined
+  const { strengths = [], weaknesses = [], opportunities = [], threats = [], feasibility = [] } = swotData || {};
 
   const getMeterColor = (score) => {
     if (score >= 8) return 'var(--accent-emerald)';

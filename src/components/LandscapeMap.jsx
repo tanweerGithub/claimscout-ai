@@ -26,10 +26,14 @@ export default function LandscapeMap({ landscapeData }) {
     }
   };
 
+  const safeNodes = Array.isArray(landscapeData?.nodes) ? landscapeData.nodes : [];
+  const safeLinks = Array.isArray(landscapeData?.links) ? landscapeData.links : [];
+  const safeWhiteSpaces = Array.isArray(landscapeData?.whiteSpaces) ? landscapeData.whiteSpaces : [];
+
   // Find all links connected to the selected node
   const getConnectedLinks = (nodeId) => {
     if (!nodeId) return [];
-    return landscapeData.links.filter(
+    return safeLinks.filter(
       link => link.source === nodeId || link.target === nodeId
     );
   };
@@ -53,9 +57,9 @@ export default function LandscapeMap({ landscapeData }) {
           </defs>
 
           {/* Draw Links/Edges */}
-          {landscapeData.links.map((link, idx) => {
-            const sourceNode = landscapeData.nodes.find(n => n.id === link.source);
-            const targetNode = landscapeData.nodes.find(n => n.id === link.target);
+          {safeLinks.map((link, idx) => {
+            const sourceNode = safeNodes.find(n => n.id === link.source);
+            const targetNode = safeNodes.find(n => n.id === link.target);
             if (!sourceNode || !targetNode || 
                 typeof sourceNode.x !== 'number' || typeof sourceNode.y !== 'number' ||
                 typeof targetNode.x !== 'number' || typeof targetNode.y !== 'number') return null;
@@ -81,7 +85,7 @@ export default function LandscapeMap({ landscapeData }) {
           })}
 
           {/* Draw White Space Opportunity Regions */}
-          {landscapeData.whiteSpaces.map((ws) => {
+          {safeWhiteSpaces.map((ws) => {
             if (!ws || typeof ws.x !== 'number' || typeof ws.y !== 'number') return null;
             const isSelected = selectedWhiteSpace && selectedWhiteSpace.id === ws.id;
             return (
@@ -133,7 +137,7 @@ export default function LandscapeMap({ landscapeData }) {
           })}
 
           {/* Draw Nodes */}
-          {landscapeData.nodes.map((node) => {
+          {safeNodes.map((node) => {
             if (!node || typeof node.x !== 'number' || typeof node.y !== 'number') return null;
             const isSelected = selectedNode && selectedNode.id === node.id;
             const isConnected = selectedNode && (
@@ -243,8 +247,9 @@ export default function LandscapeMap({ landscapeData }) {
                 </h4>
                 <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '4px', paddingLeft: 0 }}>
                   {connectedLinks.map((link, idx) => {
-                    const sourceNode = landscapeData.nodes.find(n => n.id === link.source);
-                    const targetNode = landscapeData.nodes.find(n => n.id === link.target);
+                    const sourceNode = safeNodes.find(n => n.id === link.source);
+                    const targetNode = safeNodes.find(n => n.id === link.target);
+                    if (!sourceNode || !targetNode) return null;
                     const relatedNode = sourceNode.id === selectedNode.id ? targetNode : sourceNode;
                     
                     return (

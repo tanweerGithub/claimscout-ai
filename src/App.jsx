@@ -10,7 +10,8 @@ import {
   HelpCircle,
   RefreshCw,
   X,
-  Plus
+  Plus,
+  Loader
 } from 'lucide-react';
 import './App.css';
 
@@ -21,6 +22,7 @@ import RiskEvaluator from './components/RiskEvaluator';
 import PitchGenerator from './components/PitchGenerator';
 import SwotCanvas from './components/SwotCanvas';
 import AgentChat from './components/AgentChat';
+import ErrorBoundary from './components/ErrorBoundary';
 
 // Mock Utilities
 import { 
@@ -93,6 +95,18 @@ function App() {
   const [isRegenerating, setIsRegenerating] = useState(false);
   const [isDataSynced, setIsDataSynced] = useState(true);
 
+  // Toast / Diagnostics Overlay State
+  const [toast, setToast] = useState(null); // { title, message, diagnostic, type }
+
+  const handleResetToDemoData = () => {
+    setLandscapeData(mockLandscapeData);
+    setRiskData(mockRiskAssessment);
+    setSwotData(mockSwot);
+    setSlides(mockSlides);
+    setPrd(defaultPrd);
+    setIsDataSynced(true);
+  };
+
   // Chat message logs
   const [messages, setMessages] = useState([
     { 
@@ -153,7 +167,11 @@ function App() {
           ]);
         } catch (e) {
           console.error(e);
-          alert("Simulation failed.");
+          setToast({
+            title: "Simulation Failed",
+            message: "Local mock simulation failed to execute.",
+            type: "error"
+          });
         } finally {
           setIsRegenerating(false);
         }
@@ -187,7 +205,30 @@ function App() {
       ]);
     } catch (error) {
       console.error(error);
-      alert(`Synthesis Failed: ${error.message}. Ensure your API key is correct.`);
+      let errorTitle = "Synthesis Failed";
+      let errorMsg = error.message || "An unexpected error occurred.";
+      let diagnostic = null;
+
+      if (errorMsg.includes("Failed to fetch")) {
+        errorTitle = "Network Connection Refused";
+        errorMsg = "The browser failed to fetch from the Google Generative AI API endpoint.";
+        diagnostic = "This is typically caused by:\n• Ad-blockers or privacy extensions (e.g. Brave Shields, uBlock Origin) blocking client-side Google API requests.\n• Network connectivity issues or a proxy/firewall blocking Google AI services.\n• Verify if your key is active and formatted correctly.";
+      } else if (errorMsg.includes("API key not valid") || errorMsg.includes("403") || errorMsg.includes("API_KEY_INVALID")) {
+        errorTitle = "Invalid API Key";
+        errorMsg = "The API key provided was rejected by Google Gemini.";
+        diagnostic = "Please review your API key in Settings (top-right) and ensure it has access to Gemini 1.5 Flash.";
+      } else if (errorMsg.includes("invalid JSON") || errorMsg.includes("JSON formatting")) {
+        errorTitle = "AI Formatting Error";
+        errorMsg = "Gemini returned JSON that does not match our design schema.";
+        diagnostic = "This is a temporary generation glitch. Please try clicking Sync Workspace again.";
+      }
+
+      setToast({
+        title: errorTitle,
+        message: errorMsg,
+        diagnostic: diagnostic,
+        type: "error"
+      });
     } finally {
       setIsRegenerating(false);
     }
@@ -268,6 +309,7 @@ function App() {
           setCurrentIdea={setCurrentIdea}
           apiKey={apiKey}
           onGenerateAll={handleRegenerateAll}
+          showToast={setToast}
         />
 
         {/* Center pane: Canvas with tabs */}
@@ -330,30 +372,42 @@ function App() {
             )}
 
             {/* Tab Routing */}
-            {activeTab === 'landscape' && <LandscapeMap landscapeData={landscapeData} />}
-            {activeTab === 'risk' && (
-              <div style={{ padding: '24px', overflowY: 'auto', flex: 1, width: '100%' }}>
-                <RiskEvaluator riskData={riskData} />
-              </div>
-            )}
-            {activeTab === 'pitch' && (
-              <div style={{ padding: '24px', overflowY: 'auto', flex: 1, width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
-                <PitchGenerator 
-                  slides={slides} 
-                  setSlides={setSlides}
-                  prd={prd}
-                  setPrd={setPrd}
-                  documents={documents}
-                  currentIdea={currentIdea}
-                  apiKey={apiKey}
-                />
-              </div>
-            )}
-            {activeTab === 'swot' && (
-              <div style={{ padding: '24px', overflowY: 'auto', flex: 1, width: '100%' }}>
-                <SwotCanvas swotData={swotData} />
-              </div>
-            )}
+            <ErrorBoundary name="Tech Landscape Map" onReset={handleResetToDemoData}>
+              {activeTab === 'landscape' && <LandscapeMap landscapeData={landscapeData} />}
+            </ErrorBoundary>
+
+            <ErrorBoundary name="Patent Risk Assessment" onReset={handleResetToDemoData}>
+              {activeTab === 'risk' && (
+                <div style={{ padding: '24px', overflowY: 'auto', flex: 1, width: '100%' }}>
+                  <RiskEvaluator riskData={riskData} />
+                </div>
+              )}
+            </ErrorBoundary>
+
+            <ErrorBoundary name="Pitch Deck & PRD" onReset={handleResetToDemoData}>
+              {activeTab === 'pitch' && (
+                <div style={{ padding: '24px', overflowY: 'auto', flex: 1, width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
+                  <PitchGenerator 
+                    slides={slides} 
+                    setSlides={setSlides}
+                    prd={prd}
+                    setPrd={setPrd}
+                    documents={documents}
+                    currentIdea={currentIdea}
+                    apiKey={apiKey}
+                    showToast={setToast}
+                  />
+                </div>
+              )}
+            </ErrorBoundary>
+
+            <ErrorBoundary name="SWOT Canvas" onReset={handleResetToDemoData}>
+              {activeTab === 'swot' && (
+                <div style={{ padding: '24px', overflowY: 'auto', flex: 1, width: '100%' }}>
+                  <SwotCanvas swotData={swotData} />
+                </div>
+              )}
+            </ErrorBoundary>
           </div>
         </div>
 
@@ -422,6 +476,66 @@ function App() {
                 )}
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Toast Diagnostics Overlay */}
+      {toast && (
+        <div className="modal-overlay" style={{ zIndex: 1100 }} onClick={() => setToast(null)}>
+          <div className="modal-content" style={{ maxWidth: '500px', borderLeft: '4px solid var(--accent-rose)' }} onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <span style={{ fontSize: '20px' }}>⚠️</span>
+                <h2 style={{ margin: 0, fontSize: '16px', color: 'var(--text-primary)', fontWeight: '600' }}>{toast.title}</h2>
+              </div>
+              <button className="modal-close" onClick={() => setToast(null)}>
+                <X size={18} />
+              </button>
+            </div>
+            
+            <div style={{ padding: '4px 0 16px 0' }}>
+              <p style={{ fontSize: '13.5px', color: 'var(--text-secondary)', lineHeight: 1.5, margin: '0 0 12px 0' }}>
+                {toast.message}
+              </p>
+              {toast.diagnostic && (
+                <div style={{
+                  background: 'rgba(0,0,0,0.2)',
+                  border: '1px solid rgba(255, 255, 255, 0.05)',
+                  padding: '12px',
+                  borderRadius: '8px',
+                  fontSize: '12.5px',
+                  color: 'var(--text-muted)',
+                  lineHeight: 1.6,
+                  whiteSpace: 'pre-line'
+                }}>
+                  <strong style={{ color: 'var(--text-secondary)', display: 'block', marginBottom: '4px' }}>Troubleshooting Diagnostics:</strong>
+                  {toast.diagnostic}
+                </div>
+              )}
+            </div>
+
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button className="btn btn-primary" style={{ flex: 1, justifyContent: 'center' }} onClick={() => setToast(null)}>
+                Acknowledge
+              </button>
+              {apiKey && (
+                <button 
+                  className="btn" 
+                  style={{ borderColor: 'var(--accent-rose)', color: 'var(--accent-rose)' }} 
+                  onClick={() => {
+                    handleClearKey();
+                    setToast(null);
+                    // Run simulated regenerate after a short delay
+                    setTimeout(() => {
+                      handleRegenerateAll();
+                    }, 100);
+                  }}
+                >
+                  Clear Key & Use Demo Mode
+                </button>
+              )}
+            </div>
           </div>
         </div>
       )}

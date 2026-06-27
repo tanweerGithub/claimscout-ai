@@ -8,7 +8,8 @@ export default function DocumentLibrary({
   currentIdea, 
   setCurrentIdea,
   apiKey,
-  onGenerateAll // Callback to trigger full regeneration of graphs/slides based on new library
+  onGenerateAll, // Callback to trigger full regeneration of graphs/slides based on new library
+  showToast
 }) {
   const [ideaTitle, setIdeaTitle] = useState(currentIdea.title);
   const [ideaDesc, setIdeaDesc] = useState(currentIdea.description);
@@ -16,6 +17,14 @@ export default function DocumentLibrary({
   const [isSearching, setIsSearching] = useState(false);
   const [importUrl, setImportUrl] = useState('');
   const [isImportingUrl, setIsImportingUrl] = useState(false);
+
+  const notify = (title, message, type = 'info', diagnostic = null) => {
+    if (showToast) {
+      showToast({ title, message, type, diagnostic });
+    } else {
+      alert(`${title}: ${message}`);
+    }
+  };
 
   const handleUpdateIdea = (e) => {
     e.preventDefault();
@@ -51,7 +60,7 @@ export default function DocumentLibrary({
     e.preventDefault();
     if (!searchQuery.trim()) return;
     if (!apiKey) {
-      alert("Please enter a Gemini API Key in the settings (top-right) to search and generate custom documents dynamically!");
+      notify("API Key Required", "Please enter a Gemini API Key in Settings (top-right) to search and generate custom documents dynamically.", "info");
       return;
     }
 
@@ -80,10 +89,14 @@ export default function DocumentLibrary({
 
       setDocuments(prev => [...prev, newDoc]);
       setSearchQuery('');
-      alert(`Success! Imported matching document: ${parsedDoc.title}`);
+      notify("Import Success", `Successfully imported document: ${parsedDoc.title}`, "success");
     } catch (error) {
       console.error(error);
-      alert("Failed to fetch matching document. Check your API key or connection.");
+      let diag = null;
+      if (error.message && error.message.includes("Failed to fetch")) {
+        diag = "This is typically caused by adblockers (e.g. Brave Shields, uBlock Origin) blocking client-side requests to generativeai.googleapis.com. Try disabling your shields or network firewall.";
+      }
+      notify("Import Failed", "Failed to fetch matching document. Check your API key or connection.", "error", diag);
     } finally {
       setIsSearching(false);
     }
@@ -94,7 +107,7 @@ export default function DocumentLibrary({
     e.preventDefault();
     if (!importUrl.trim()) return;
     if (!apiKey) {
-      alert("Please enter a Gemini API Key in the settings (top-right) to scrape competitor sites!");
+      notify("API Key Required", "Please enter a Gemini API Key in Settings (top-right) to scrape competitor sites.", "info");
       return;
     }
 
@@ -123,10 +136,14 @@ export default function DocumentLibrary({
 
       setDocuments(prev => [...prev, newDoc]);
       setImportUrl('');
-      alert(`Successfully analyzed competitor: ${parsedDoc.title}`);
+      notify("Analysis Success", `Successfully analyzed competitor site: ${parsedDoc.title}`, "success");
     } catch (error) {
       console.error(error);
-      alert("Failed to analyze URL. Ensure it starts with http/https and your API Key is valid.");
+      let diag = null;
+      if (error.message && error.message.includes("Failed to fetch")) {
+        diag = "This is typically caused by adblockers (e.g. Brave Shields, uBlock Origin) blocking client-side requests to generativeai.googleapis.com. Try disabling your shields or network firewall.";
+      }
+      notify("Analysis Failed", "Failed to analyze URL. Ensure it starts with http/https and your API Key is valid.", "error", diag);
     } finally {
       setIsImportingUrl(false);
     }

@@ -9,7 +9,8 @@ export default function PitchGenerator({
   setPrd, 
   documents, 
   currentIdea, 
-  apiKey 
+  apiKey,
+  showToast
 }) {
   const [subTab, setSubTab] = useState('pitch'); // 'pitch' or 'prd'
   const [currentSlideIdx, setCurrentSlideIdx] = useState(0);
@@ -22,7 +23,16 @@ export default function PitchGenerator({
   const [slideSubtitle, setSlideSubtitle] = useState('');
   const [slideBullets, setSlideBullets] = useState('');
 
-  const currentSlide = slides[currentSlideIdx] || { title: 'No Slides', subtitle: '', bullets: [] };
+  const notify = (title, message, type = 'info', diagnostic = null) => {
+    if (showToast) {
+      showToast({ title, message, type, diagnostic });
+    } else {
+      alert(`${title}: ${message}`);
+    }
+  };
+
+  const safeSlides = Array.isArray(slides) ? slides : [];
+  const currentSlide = safeSlides[currentSlideIdx] || { title: 'No Slides', subtitle: '', bullets: [] };
 
   const handleStartEdit = () => {
     setSlideTitle(currentSlide.title);
@@ -56,7 +66,7 @@ export default function PitchGenerator({
   };
 
   const handleNextSlide = () => {
-    if (currentSlideIdx < slides.length - 1) {
+    if (currentSlideIdx < safeSlides.length - 1) {
       setCurrentSlideIdx(prev => prev + 1);
       setIsEditing(false);
     }
@@ -71,7 +81,7 @@ export default function PitchGenerator({
   // Agentic compilation of pitch & PRD based on current library
   const handleRegenerate = async () => {
     if (!apiKey) {
-      alert("Please enter a Gemini API Key in the settings to generate customized slides!");
+      notify("API Key Required", "Please enter a Gemini API Key in Settings (top-right) to generate customized slides.", "info");
       return;
     }
     
@@ -92,10 +102,14 @@ export default function PitchGenerator({
       setSlides(result.slides);
       setPrd(result.prd);
       setCurrentSlideIdx(0);
-      alert("Pitch Deck & PRD successfully compiled from workspace references!");
+      notify("Generation Success", "Pitch Deck & PRD successfully compiled from workspace references!", "success");
     } catch (e) {
       console.error(e);
-      alert("Failed to compile slides. Try entering a different prompt or check your API key.");
+      let diag = null;
+      if (e.message && e.message.includes("Failed to fetch")) {
+        diag = "This is typically caused by adblockers (e.g. Brave Shields, uBlock Origin) blocking client-side requests to generativeai.googleapis.com. Try disabling your shields or network firewall.";
+      }
+      notify("Generation Failed", "Failed to compile slides. Try entering a different prompt or check your API key.", "error", diag);
     } finally {
       setIsRegenerating(false);
     }
@@ -192,12 +206,12 @@ export default function PitchGenerator({
               </div>
 
               <div className="slide-footer">
-                <span className="slide-indicator">Slide {currentSlideIdx + 1} of {slides.length}</span>
+                <span className="slide-indicator">Slide {currentSlideIdx + 1} of {safeSlides.length}</span>
                 <div className="slide-nav-buttons">
                   <button className="btn btn-icon" onClick={handlePrevSlide} disabled={currentSlideIdx === 0}>
                     <ChevronLeft size={16} />
                   </button>
-                  <button className="btn btn-icon" onClick={handleNextSlide} disabled={currentSlideIdx === slides.length - 1}>
+                  <button className="btn btn-icon" onClick={handleNextSlide} disabled={currentSlideIdx === safeSlides.length - 1}>
                     <ChevronRight size={16} />
                   </button>
                 </div>

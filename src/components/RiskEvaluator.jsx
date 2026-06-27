@@ -2,6 +2,8 @@ import React from 'react';
 import { AlertCircle, CheckCircle2, AlertTriangle, ShieldCheck } from 'lucide-react';
 
 export default function RiskEvaluator({ riskData }) {
+  const safeRisks = Array.isArray(riskData) ? riskData : [];
+
   const getRiskIcon = (severity) => {
     switch (severity) {
       case 'high':
@@ -28,12 +30,12 @@ export default function RiskEvaluator({ riskData }) {
           <h3 style={{ margin: 0, fontSize: '15px', fontWeight: '600' }}>Patent Claims Compliance & Overlap Assessment</h3>
         </div>
         <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
-          {riskData.filter(r => r.severity === 'high').length} High Risks • {riskData.filter(r => r.severity === 'medium').length} Medium Risks
+          {safeRisks.filter(r => r.severity === 'high').length} High Risks • {safeRisks.filter(r => r.severity === 'medium').length} Medium Risks
         </div>
       </div>
 
       <div className="risk-grid">
-        {riskData.map((risk) => (
+        {safeRisks.map((risk) => (
           <div key={risk.id} className={`risk-card ${risk.severity}-risk`}>
             
             {/* Header */}
