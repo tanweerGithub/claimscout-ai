@@ -19,8 +19,8 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'API key is required' });
     }
 
-    const modelName = model || 'gemini-2.0-flash';
-    const url = `https://generativeai.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
+    const modelName = model || 'gemini-2.5-flash';
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${apiKey}`;
 
     const body = {
       contents,

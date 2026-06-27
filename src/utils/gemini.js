@@ -1,7 +1,7 @@
 // Gemini API direct REST integration helper
 // Uses client-side fetch to ensure no server costs and easy client-side configuration.
 
-const GEMINI_API_URL = "https://generativeai.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
+const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
 
 /**
  * Helper to extract response parts from Gemini response schema
@@ -41,7 +41,7 @@ export async function callGemini(apiKey, contents, responseJson = false, systemI
       },
       body: JSON.stringify({
         apiKey,
-        model: "gemini-2.0-flash",
+        model: "gemini-2.5-flash",
         contents,
         responseJson,
         systemInstruction
