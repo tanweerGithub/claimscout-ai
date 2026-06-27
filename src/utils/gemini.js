@@ -4,9 +4,66 @@
 const GEMINI_API_URL = "https://generativeai.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
 
 /**
+ * Helper to extract response parts from Gemini response schema
+ */
+function parseGeminiResponse(data, responseJson) {
+  if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts) {
+    const responseText = data.candidates[0].content.parts[0].text;
+    
+    if (responseJson) {
+      try {
+        return JSON.parse(responseText.trim());
+      } catch (e) {
+        console.error("Failed to parse JSON response from Gemini. Raw text:", responseText);
+        throw new Error("Gemini returned invalid JSON formatting. Try again.");
+      }
+    }
+    return responseText;
+  } else {
+    // Check if Gemini API returned an error block inside the JSON payload
+    if (data.error) {
+      throw new Error(`Google API Error: ${data.error.message} (${data.error.status})`);
+    }
+    throw new Error("No output candidate returned from Gemini.");
+  }
+}
+
+/**
  * Call the Gemini REST API with the given contents and configuration
  */
 export async function callGemini(apiKey, contents, responseJson = false, systemInstruction = null) {
+  // 1. Try Vercel Serverless Function Proxy to bypass browser CORS preflight blocks
+  try {
+    const proxyResponse = await fetch("/api/gemini", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        apiKey,
+        model: "gemini-2.0-flash",
+        contents,
+        responseJson,
+        systemInstruction
+      })
+    });
+
+    if (proxyResponse.status !== 404) {
+      if (!proxyResponse.ok) {
+        const errorText = await proxyResponse.text();
+        throw new Error(`Gemini API Error via Proxy (${proxyResponse.status}): ${errorText}`);
+      }
+      const data = await proxyResponse.json();
+      return parseGeminiResponse(data, responseJson);
+    }
+  } catch (error) {
+    // If the proxy is active but failed with another error, throw it immediately
+    if (!error.message.includes("404") && !error.message.includes("Failed to fetch")) {
+      throw error;
+    }
+  }
+
+  // 2. Fallback: Direct Client-Side Fetch (e.g. running local Vite dev server)
   const url = `${GEMINI_API_URL}?key=${apiKey}`;
   
   const body = {
@@ -39,25 +96,9 @@ export async function callGemini(apiKey, contents, responseJson = false, systemI
     }
 
     const data = await response.json();
-    
-    if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts) {
-      const responseText = data.candidates[0].content.parts[0].text;
-      
-      if (responseJson) {
-        // Parse JSON response
-        try {
-          return JSON.parse(responseText.trim());
-        } catch (e) {
-          console.error("Failed to parse JSON response from Gemini. Raw text:", responseText);
-          throw new Error("Gemini returned invalid JSON formatting. Try again.");
-        }
-      }
-      return responseText;
-    } else {
-      throw new Error("No output candidate returned from Gemini.");
-    }
+    return parseGeminiResponse(data, responseJson);
   } catch (error) {
-    console.error("Gemini API call failed:", error);
+    console.error("Gemini API direct fallback call failed:", error);
     throw error;
   }
 }
