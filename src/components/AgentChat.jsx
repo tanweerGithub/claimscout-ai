@@ -56,8 +56,8 @@ export default function AgentChat({
     if (textarea) {
       textarea.style.height = 'auto';
       const targetHeight = textarea.scrollHeight;
-      textarea.style.height = `${Math.min(targetHeight, 400)}px`;
-      textarea.style.overflowY = targetHeight > 400 ? 'auto' : 'hidden';
+      textarea.style.height = `${Math.min(targetHeight, 300)}px`;
+      textarea.style.overflowY = targetHeight > 300 ? 'auto' : 'hidden';
     }
   }, [inputText]);
 
@@ -307,55 +307,53 @@ export default function AgentChat({
                 rows={2}
               />
               
-              <div className="chat-input-actions">
-                <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginLeft: 'auto' }}>
-                  <button
-                    type="button"
-                    onClick={toggleListening}
-                    className={`chat-mic-btn ${isListening ? 'listening' : ''}`}
-                    style={{
-                      background: 'none',
-                      border: 'none',
-                      color: isListening ? 'var(--accent-rose)' : 'var(--text-secondary)',
-                      cursor: 'pointer',
-                      padding: '4px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center'
-                    }}
-                    title={isListening ? "Stop Listening" : "Voice Input (Dictate)"}
-                  >
-                    {isListening ? (
-                      <div className="pulse-mic" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <Mic size={15} />
-                        <span className="pulse-ring"></span>
-                      </div>
-                    ) : (
+              <div style={{ display: 'flex', gap: '6px', alignItems: 'center', paddingBottom: '2px', flexShrink: 0 }}>
+                <button
+                  type="button"
+                  onClick={toggleListening}
+                  className={`chat-mic-btn ${isListening ? 'listening' : ''}`}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: isListening ? 'var(--accent-rose)' : 'var(--text-secondary)',
+                    cursor: 'pointer',
+                    padding: '4px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                  title={isListening ? "Stop Listening" : "Voice Input (Dictate)"}
+                >
+                  {isListening ? (
+                    <div className="pulse-mic" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                       <Mic size={15} />
-                    )}
-                  </button>
+                      <span className="pulse-ring"></span>
+                    </div>
+                  ) : (
+                    <Mic size={15} />
+                  )}
+                </button>
 
-                  <button 
-                    type="submit" 
-                    className="chat-send-btn-modern" 
-                    disabled={isLoading || !inputText.trim()}
-                    style={{
-                      background: inputText.trim() ? (chatPersona === 'copilot' ? 'var(--accent-blue)' : 'var(--accent-rose)') : 'rgba(255,255,255,0.04)',
-                      color: inputText.trim() ? '#fff' : 'var(--text-muted)',
-                      border: 'none',
-                      width: '26px',
-                      height: '26px',
-                      borderRadius: '50%',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      cursor: inputText.trim() ? 'pointer' : 'default',
-                      transition: 'all 0.2s ease'
-                    }}
-                  >
-                    <Send size={11} />
-                  </button>
-                </div>
+                <button 
+                  type="submit" 
+                  className="chat-send-btn-modern" 
+                  disabled={isLoading || !inputText.trim()}
+                  style={{
+                    background: inputText.trim() ? (chatPersona === 'copilot' ? 'var(--accent-blue)' : 'var(--accent-rose)') : 'rgba(255,255,255,0.04)',
+                    color: inputText.trim() ? '#fff' : 'var(--text-muted)',
+                    border: 'none',
+                    width: '26px',
+                    height: '26px',
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: inputText.trim() ? 'pointer' : 'default',
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  <Send size={11} />
+                </button>
               </div>
             </div>
           </form>
